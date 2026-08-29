@@ -1,0 +1,1230 @@
+/* =====================================================================
+   Rogério Cunha — advogado e escritor
+   Estilo de todo o site, num arquivo só.
+
+   A ideia visual: papel, não tela. Fundo levemente quente em vez de
+   branco puro, letra com serifa, linha de texto curta e espaço
+   sobrando. Um site sobre história e comportamento humano tem que
+   parecer um bom livro aberto, não uma loja.
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+:root {
+    /* Papel e tinta. Nada de #fff nem #000: o branco puro cansa a
+       vista em texto longo, e o preto puro tira a impressão de papel. */
+    --papel: #faf7f2;
+    --papel-fundo: #f2ece2;
+    --tinta: #1f1c19;
+    --tinta-suave: #5a544c;
+    --tinta-fraca: #8b8377;
+
+    /* Vinho envelhecido: dá seriedade sem o peso do preto, e combina
+       com lombada de livro antigo. Usado com parcimônia. */
+    --realce: #7d3c34;
+    --realce-escuro: #5f2c26;
+
+    --linha: #e2d9cc;
+
+    --serifa-titulo: 'Playfair Display', Georgia, serif;
+    --serifa-texto: 'Lora', Georgia, serif;
+
+    /* Largura de leitura confortável: por volta de 70 caracteres por
+       linha. Mais que isso e o olho se perde ao voltar para a esquerda. */
+    --largura-leitura: 680px;
+    --largura-pagina: 1180px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Clicar em "Vídeos" ou "Textos" passa a deslizar até a seção, em vez
+   de saltar. Numa página longa o salto desorienta: a pessoa não sabe
+   se mudou de página ou só andou. */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Quem configurou o sistema para reduzir animações não recebe o
+   deslize — para algumas pessoas isso causa enjoo de verdade. */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+}
+
+body {
+    background-color: var(--papel);
+    color: var(--tinta);
+    font-family: var(--serifa-texto);
+    font-size: 18px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+a {
+    color: inherit;
+}
+
+.container {
+    max-width: var(--largura-pagina);
+    margin: 0 auto;
+    padding: 0 28px;
+}
+
+.leitura {
+    max-width: var(--largura-leitura);
+    margin: 0 auto;
+}
+
+
+/* ---------------------------------------------------------------------
+   FAIXA DE PRÉVIA
+   Some com uma linha só, quando o conteúdo de verdade entrar.
+   --------------------------------------------------------------------- */
+.faixa-previa {
+    background-color: var(--tinta);
+    color: #d9d2c7;
+    text-align: center;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 9px 20px;
+}
+
+
+/* ---------------------------------------------------------------------
+   CABEÇALHO
+   --------------------------------------------------------------------- */
+.cabecalho {
+    border-bottom: 1px solid var(--linha);
+    background-color: var(--papel);
+}
+
+.cabecalho .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-top: 26px;
+    padding-bottom: 26px;
+}
+
+.marca {
+    text-decoration: none;
+    line-height: 1.15;
+}
+
+.marca strong {
+    display: block;
+    font-family: var(--serifa-titulo);
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.marca span {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--tinta-fraca);
+    margin-top: 5px;
+}
+
+.menu {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+}
+
+.menu a {
+    text-decoration: none;
+    font-size: 0.82rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+    padding-bottom: 3px;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.25s, color 0.25s;
+}
+
+.menu a:hover,
+.menu a.ativo {
+    color: var(--realce);
+    border-bottom-color: var(--realce);
+}
+
+.abrir-menu {
+    display: none;
+    background: none;
+    border: 1px solid var(--linha);
+    border-radius: 3px;
+    padding: 9px 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--tinta);
+}
+
+@media (max-width: 860px) {
+    .abrir-menu { display: block; }
+
+    .menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--papel);
+        border-bottom: 1px solid var(--linha);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 24px 28px 30px;
+        z-index: 50;
+    }
+
+    .menu.aberto { display: flex; }
+    .cabecalho .container { position: relative; }
+}
+
+
+/* ---------------------------------------------------------------------
+   ABERTURA
+   --------------------------------------------------------------------- */
+.abertura {
+    padding: 92px 0 84px;
+    border-bottom: 1px solid var(--linha);
+}
+
+.abertura .container {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 72px;
+    align-items: center;
+}
+
+.abertura-texto .chamada-acima {
+    font-size: 0.72rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--realce);
+    margin-bottom: 22px;
+}
+
+.abertura-texto h1 {
+    font-family: var(--serifa-titulo);
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    margin-bottom: 26px;
+}
+
+.abertura-texto p {
+    font-size: 1.13rem;
+    color: var(--tinta-suave);
+    max-width: 30em;
+    margin-bottom: 36px;
+}
+
+.abertura-acoes {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+    .abertura { padding: 60px 0 56px; }
+    .abertura .container {
+        grid-template-columns: 1fr;
+        gap: 44px;
+    }
+    /* No celular o retrato vem antes do texto: rosto primeiro, que é
+       o que faz a pessoa parar. */
+    .abertura-retrato { order: -1; }
+}
+
+
+/* ---------------------------------------------------------------------
+   BOTÕES
+   --------------------------------------------------------------------- */
+.botao {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--serifa-texto);
+    font-size: 0.83rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 15px 30px;
+    border: 1px solid var(--tinta);
+    background-color: var(--tinta);
+    color: var(--papel);
+    cursor: pointer;
+    transition: background-color 0.25s, color 0.25s, border-color 0.25s;
+}
+
+.botao:hover {
+    background-color: var(--realce);
+    border-color: var(--realce);
+}
+
+.botao.contorno {
+    background-color: transparent;
+    color: var(--tinta);
+}
+
+.botao.contorno:hover {
+    background-color: var(--tinta);
+    color: var(--papel);
+    border-color: var(--tinta);
+}
+
+.botao.zap {
+    background-color: #1f7a4d;
+    border-color: #1f7a4d;
+    color: #ffffff;
+}
+
+.botao.zap:hover {
+    background-color: #17603c;
+    border-color: #17603c;
+}
+
+
+/* ---------------------------------------------------------------------
+   RETRATO
+   O quadro fica atrás e deslocado, como uma moldura de papel — assim
+   o espaço reservado à foto já parece composto, e não um buraco.
+   --------------------------------------------------------------------- */
+.abertura-retrato {
+    position: relative;
+    padding: 16px 0 16px 16px;
+}
+
+.abertura-retrato::before {
+    content: '';
+    position: absolute;
+    inset: 0 16px 16px 0;
+    border: 1px solid var(--realce);
+    opacity: 0.35;
+}
+
+.retrato-moldura {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    background-color: var(--papel-fundo);
+    overflow: hidden;
+}
+
+.retrato-moldura img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Espaço reservado à foto, enquanto ela não chega. */
+.reservado {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+    padding: 24px;
+    background-image:
+        linear-gradient(135deg, rgba(125, 60, 52, 0.05) 25%, transparent 25%),
+        linear-gradient(225deg, rgba(125, 60, 52, 0.05) 25%, transparent 25%),
+        linear-gradient(45deg,  rgba(125, 60, 52, 0.05) 25%, transparent 25%),
+        linear-gradient(315deg, rgba(125, 60, 52, 0.05) 25%, transparent 25%);
+    background-size: 22px 22px;
+    color: var(--tinta-fraca);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.reservado b {
+    font-family: var(--serifa-titulo);
+    font-size: 1.5rem;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--tinta-suave);
+    font-weight: 500;
+}
+
+
+/* ---------------------------------------------------------------------
+   SEÇÕES
+   --------------------------------------------------------------------- */
+.secao {
+    padding: 88px 0;
+}
+
+.secao.creme {
+    background-color: var(--papel-fundo);
+}
+
+.secao + .secao { border-top: 1px solid var(--linha); }
+
+.titulo-secao {
+    text-align: center;
+    margin-bottom: 56px;
+}
+
+.titulo-secao .chamada-acima {
+    font-size: 0.7rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--realce);
+    margin-bottom: 14px;
+}
+
+.titulo-secao h2 {
+    font-family: var(--serifa-titulo);
+    font-size: clamp(1.9rem, 3.4vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.titulo-secao p {
+    color: var(--tinta-suave);
+    max-width: 34em;
+    margin: 14px auto 0;
+}
+
+/* Fio curto sob o título — detalhe de página de livro. */
+.titulo-secao h2::after {
+    content: '';
+    display: block;
+    width: 54px;
+    height: 1px;
+    background-color: var(--realce);
+    margin: 22px auto 0;
+}
+
+
+/* ---------------------------------------------------------------------
+   TEXTOS DO BLOG (cartões)
+   --------------------------------------------------------------------- */
+.grade-textos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+}
+
+@media (max-width: 940px) {
+    .grade-textos { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 620px) {
+    .grade-textos { grid-template-columns: 1fr; gap: 44px; }
+}
+
+.cartao-texto {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.cartao-capa {
+    aspect-ratio: 3 / 2;
+    background-color: var(--papel-fundo);
+    overflow: hidden;
+    margin-bottom: 22px;
+}
+
+.cartao-capa img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.cartao-texto:hover .cartao-capa img { transform: scale(1.04); }
+
+.cartao-meta {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--tinta-fraca);
+    margin-bottom: 10px;
+}
+
+.cartao-texto h3 {
+    font-family: var(--serifa-titulo);
+    font-size: 1.32rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 12px;
+    transition: color 0.25s;
+}
+
+.cartao-texto:hover h3 { color: var(--realce); }
+
+.cartao-texto p {
+    color: var(--tinta-suave);
+    font-size: 0.97rem;
+}
+
+.cartao-continua {
+    margin-top: 16px;
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--realce);
+}
+
+
+/* ---------------------------------------------------------------------
+   VÍDEOS
+
+   O vídeo mora no YouTube; aqui fica só a capa dele. O tocador de
+   verdade só é carregado quando alguém clica.
+
+   Isso não é capricho: seis vídeos incorporados de uma vez fazem a
+   página baixar megabytes de código do Google antes mesmo de a pessoa
+   decidir assistir. Com a capa, o site abre leve e o peso só chega
+   para quem quis ver.
+   --------------------------------------------------------------------- */
+.video-quadro {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background-color: #17140f;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.video-quadro img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease, opacity 0.3s;
+}
+
+.video-quadro:hover img {
+    transform: scale(1.03);
+    opacity: 0.85;
+}
+
+.video-quadro iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* Botão de play: círculo claro, seta escura. Discreto o bastante para
+   não competir com a imagem, grande o bastante para o dedo acertar. */
+.botao-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background-color: rgba(250, 247, 242, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.25s, transform 0.25s;
+    pointer-events: none;
+}
+
+.video-quadro:hover .botao-play {
+    background-color: var(--papel);
+    transform: translate(-50%, -50%) scale(1.08);
+}
+
+.botao-play::after {
+    content: '';
+    border-style: solid;
+    border-width: 13px 0 13px 21px;
+    border-color: transparent transparent transparent var(--tinta);
+    margin-left: 5px;
+}
+
+.video-destaque .botao-play { width: 92px; height: 92px; }
+
+.video-destaque .botao-play::after {
+    border-width: 16px 0 16px 26px;
+}
+
+/* Enquanto o vídeo de verdade não chega */
+.video-reservado {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(160deg, #2e2822 0%, #1f1c19 60%, #241f1a 100%);
+    color: #b3a48f;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.video-reservado b {
+    font-family: var(--serifa-titulo);
+    font-size: 1.25rem;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #efe9df;
+    font-weight: 500;
+}
+
+.video-destaque { max-width: 900px; margin: 0 auto 26px; }
+
+.video-legenda { margin-top: 18px; }
+
+.video-destaque .video-legenda { text-align: center; }
+
+.video-legenda h3 {
+    font-family: var(--serifa-titulo);
+    font-size: 1.22rem;
+    line-height: 1.3;
+    margin-bottom: 6px;
+}
+
+.video-destaque .video-legenda h3 { font-size: 1.5rem; }
+
+.video-legenda p { color: var(--tinta-suave); font-size: 0.95rem; }
+
+.grade-videos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 34px;
+    margin-top: 56px;
+}
+
+@media (max-width: 940px) { .grade-videos { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 620px) { .grade-videos { grid-template-columns: 1fr; gap: 40px; } }
+
+
+/* ---------------------------------------------------------------------
+   LIVROS
+   --------------------------------------------------------------------- */
+.livro-destaque {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 68px;
+    align-items: center;
+}
+
+@media (max-width: 900px) {
+    .livro-destaque { grid-template-columns: 1fr; gap: 40px; }
+}
+
+/* A capa "de verdade" e o espaço reservado têm a mesma proporção de
+   livro, então trocar um pelo outro não mexe no layout. */
+.capa-livro {
+    aspect-ratio: 2 / 3;
+    background-color: var(--papel-fundo);
+    box-shadow: 0 18px 40px rgba(31, 28, 25, 0.16);
+    overflow: hidden;
+    position: relative;
+}
+
+.capa-livro img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Capa desenhada no lugar da foto: fundo escuro, título com serifa e
+   um fio. Parece uma capa sóbria de verdade, e não um retângulo vazio. */
+.capa-reservada {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(160deg, #2e2822 0%, #1f1c19 60%, #241f1a 100%);
+    color: #efe9df;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 12% 11%;
+    gap: 16px;
+}
+
+.capa-reservada small {
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #b3a48f;
+}
+
+.capa-reservada strong {
+    font-family: var(--serifa-titulo);
+    font-size: clamp(1.2rem, 2.4vw, 1.9rem);
+    font-weight: 700;
+    line-height: 1.22;
+}
+
+.capa-reservada span {
+    display: block;
+    width: 40px;
+    height: 1px;
+    background-color: #8a6f5c;
+}
+
+.capa-reservada em {
+    font-style: normal;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #b3a48f;
+}
+
+.livro-info h3 {
+    font-family: var(--serifa-titulo);
+    font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 8px;
+}
+
+.livro-subtitulo {
+    color: var(--realce);
+    font-style: italic;
+    font-size: 1.05rem;
+    margin-bottom: 24px;
+}
+
+.livro-info p { color: var(--tinta-suave); margin-bottom: 18px; }
+
+.livro-ficha {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 34px;
+    padding: 20px 0;
+    margin: 10px 0 28px;
+    border-top: 1px solid var(--linha);
+    border-bottom: 1px solid var(--linha);
+    font-size: 0.85rem;
+    color: var(--tinta-fraca);
+}
+
+.livro-ficha b {
+    display: block;
+    color: var(--tinta);
+    font-weight: 600;
+}
+
+.livro-preco {
+    font-family: var(--serifa-titulo);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 22px;
+}
+
+.livro-preco small {
+    display: block;
+    font-family: var(--serifa-texto);
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--tinta-fraca);
+    letter-spacing: 0.04em;
+    margin-top: 4px;
+}
+
+/* Lista dos demais livros */
+.grade-livros {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 46px;
+}
+
+@media (max-width: 940px) { .grade-livros { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .grade-livros { grid-template-columns: 1fr; gap: 50px; } }
+
+/* Os cartões da fileira já têm a mesma altura (é o padrão da grade).
+   O que faltava era empurrar o pé do cartão para baixo: sem isso, um
+   resumo de três linhas e outro de cinco deixavam preço e botão em
+   alturas diferentes, e a fileira ficava desalinhada. */
+.item-livro {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.item-livro .capa-livro { margin-bottom: 22px; }
+
+.item-livro h3 {
+    font-family: var(--serifa-titulo);
+    font-size: 1.25rem;
+    line-height: 1.3;
+    margin-bottom: 6px;
+}
+
+.item-livro .livro-subtitulo { font-size: 0.94rem; margin-bottom: 14px; }
+.item-livro p { color: var(--tinta-suave); font-size: 0.95rem; margin-bottom: 18px; }
+
+.item-livro .linha-preco {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--linha);
+    padding-top: 18px;
+}
+
+.item-livro .linha-preco strong {
+    font-family: var(--serifa-titulo);
+    font-size: 1.4rem;
+}
+
+/* Ficha resumida do livro no cartão: a mesma informação do destaque,
+   numa linha só. Página, acabamento e "autografado" são o que tira a
+   dúvida de quem está quase comprando. */
+.ficha-curta {
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    color: var(--tinta-fraca);
+    padding-bottom: 16px;
+    margin-bottom: 4px;
+
+    /* Este "auto" é o que alinha a fileira: ele empurra a ficha, o
+       preço e o botão para o fim do cartão, seja qual for o tamanho do
+       resumo acima. A sobra de espaço fica no meio, onde não incomoda,
+       em vez de embaixo, onde desalinha. */
+    margin-top: auto;
+}
+
+/* Botão sozinho e centralizado, fechando um bloco. */
+.acao-central {
+    display: flex;
+    justify-content: center;
+    margin-top: 62px;
+}
+
+
+/* ---------------------------------------------------------------------
+   SOBRE
+   --------------------------------------------------------------------- */
+.sobre-grade {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 66px;
+    align-items: center;
+}
+
+@media (max-width: 900px) { .sobre-grade { grid-template-columns: 1fr; gap: 40px; } }
+
+.sobre-texto h2 {
+    font-family: var(--serifa-titulo);
+    font-size: clamp(1.9rem, 3.4vw, 2.4rem);
+    line-height: 1.2;
+    margin-bottom: 24px;
+}
+
+.sobre-texto p { color: var(--tinta-suave); margin-bottom: 18px; }
+
+.citacao {
+    font-family: var(--serifa-titulo);
+    font-style: italic;
+    font-size: 1.3rem;
+    line-height: 1.5;
+    color: var(--tinta);
+    border-left: 2px solid var(--realce);
+    padding: 6px 0 6px 26px;
+    margin: 30px 0;
+}
+
+.credenciais {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 26px;
+}
+
+.credenciais span {
+    font-size: 0.74rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+    border: 1px solid var(--linha);
+    padding: 8px 15px;
+}
+
+
+/* ---------------------------------------------------------------------
+   GALERIA
+   --------------------------------------------------------------------- */
+.galeria {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+@media (max-width: 860px) { .galeria { grid-template-columns: repeat(2, 1fr); } }
+
+.galeria-item {
+    aspect-ratio: 1 / 1;
+    background-color: var(--papel);
+    overflow: hidden;
+}
+
+/* O primeiro ocupa dois por dois, para a grade não ficar monótona. */
+.galeria-item.grande {
+    grid-column: span 2;
+    grid-row: span 2;
+    aspect-ratio: auto;
+}
+
+@media (max-width: 860px) {
+    .galeria-item.grande { grid-column: span 2; grid-row: span 1; aspect-ratio: 1 / 1; }
+}
+
+.galeria-item img { width: 100%; height: 100%; object-fit: cover; }
+
+
+/* ---------------------------------------------------------------------
+   PÁGINA DE UM TEXTO
+   --------------------------------------------------------------------- */
+.artigo-topo {
+    padding: 70px 0 46px;
+    text-align: center;
+}
+
+.artigo-topo .cartao-meta { margin-bottom: 18px; }
+
+.artigo-topo h1 {
+    font-family: var(--serifa-titulo);
+    font-size: clamp(2rem, 4.4vw, 3.1rem);
+    font-weight: 700;
+    line-height: 1.16;
+    max-width: 16em;
+    margin: 0 auto 20px;
+}
+
+.artigo-linha-fina {
+    color: var(--tinta-suave);
+    font-style: italic;
+    font-size: 1.12rem;
+    max-width: 32em;
+    margin: 0 auto;
+}
+
+.artigo-capa {
+    aspect-ratio: 21 / 9;
+    background-color: var(--papel-fundo);
+    overflow: hidden;
+    margin-bottom: 54px;
+}
+
+.artigo-capa img { width: 100%; height: 100%; object-fit: cover; }
+
+.corpo-artigo { font-size: 1.09rem; }
+
+.corpo-artigo p { margin-bottom: 26px; }
+
+/* Capitular: a primeira letra grande, como em livro. */
+.corpo-artigo > p:first-of-type::first-letter {
+    float: left;
+    font-family: var(--serifa-titulo);
+    font-size: 3.9rem;
+    line-height: 0.84;
+    font-weight: 700;
+    margin: 6px 12px 0 0;
+    color: var(--realce);
+}
+
+.corpo-artigo h2 {
+    font-family: var(--serifa-titulo);
+    font-size: 1.6rem;
+    line-height: 1.3;
+    margin: 44px 0 18px;
+}
+
+.corpo-artigo blockquote {
+    font-family: var(--serifa-titulo);
+    font-style: italic;
+    font-size: 1.35rem;
+    line-height: 1.5;
+    text-align: center;
+    color: var(--tinta);
+    padding: 34px 0;
+    margin: 40px 0;
+    border-top: 1px solid var(--linha);
+    border-bottom: 1px solid var(--linha);
+}
+
+.assinatura-artigo {
+    margin-top: 54px;
+    padding-top: 30px;
+    border-top: 1px solid var(--linha);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.assinatura-artigo .selo {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background-color: var(--papel-fundo);
+    border: 1px solid var(--linha);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serifa-titulo);
+    font-size: 1.2rem;
+    color: var(--realce);
+    flex-shrink: 0;
+}
+
+.assinatura-artigo strong { display: block; font-family: var(--serifa-titulo); font-size: 1.05rem; }
+.assinatura-artigo span { font-size: 0.88rem; color: var(--tinta-fraca); }
+
+
+/* ---------------------------------------------------------------------
+   COMENTÁRIOS
+   --------------------------------------------------------------------- */
+.comentarios { margin-top: 66px; }
+
+.comentarios h2 {
+    font-family: var(--serifa-titulo);
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.comentarios > p.explicativo {
+    color: var(--tinta-fraca);
+    font-size: 0.9rem;
+    margin-bottom: 34px;
+}
+
+.comentario {
+    display: flex;
+    gap: 18px;
+    padding: 26px 0;
+    border-top: 1px solid var(--linha);
+}
+
+.comentario .inicial {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--papel-fundo);
+    color: var(--realce);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serifa-titulo);
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+.comentario-cabeca {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.comentario-cabeca strong { font-family: var(--serifa-titulo); font-size: 1rem; }
+.comentario-cabeca time { font-size: 0.78rem; color: var(--tinta-fraca); }
+
+.comentario p { color: var(--tinta-suave); font-size: 0.99rem; }
+
+/* Resposta do autor, recuada e destacada — mostra que ele responde. */
+.comentario.resposta-autor {
+    margin-left: 62px;
+    background-color: var(--papel-fundo);
+    padding: 22px 26px;
+    border-top: none;
+    border-left: 2px solid var(--realce);
+}
+
+.selo-autor {
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    background-color: var(--realce);
+    color: var(--papel);
+    padding: 3px 9px;
+}
+
+.forma-comentario {
+    margin-top: 44px;
+    background-color: var(--papel-fundo);
+    padding: 34px;
+    border: 1px solid var(--linha);
+}
+
+.forma-comentario h3 {
+    font-family: var(--serifa-titulo);
+    font-size: 1.25rem;
+    margin-bottom: 6px;
+}
+
+.forma-comentario > p {
+    font-size: 0.88rem;
+    color: var(--tinta-fraca);
+    margin-bottom: 24px;
+}
+
+.dupla-campo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+@media (max-width: 620px) { .dupla-campo { grid-template-columns: 1fr; } }
+
+.campo { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
+
+.campo label {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+}
+
+.campo input,
+.campo textarea {
+    font-family: var(--serifa-texto);
+    font-size: 1rem;
+    color: var(--tinta);
+    background-color: var(--papel);
+    border: 1px solid var(--linha);
+    padding: 13px 15px;
+    outline: none;
+    transition: border-color 0.25s;
+}
+
+.campo textarea { min-height: 132px; resize: vertical; line-height: 1.65; }
+
+.campo input:focus,
+.campo textarea:focus { border-color: var(--realce); }
+
+
+/* ---------------------------------------------------------------------
+   VOLTAR AO TOPO
+
+   Acompanha a leitura em qualquer seção. Só aparece depois que a
+   pessoa desce a primeira tela — antes disso não teria função, e um
+   botão parado num canto sem utilidade só suja o canto.
+   --------------------------------------------------------------------- */
+.subir-topo {
+    position: fixed;
+    right: 26px;
+    bottom: 26px;
+    z-index: 200;
+
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 1px solid var(--tinta);
+    background-color: var(--tinta);
+    color: var(--papel);
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serifa-texto);
+
+    /* Escondido de verdade: sem clique acidental e fora da ordem de
+       tabulação enquanto não serve para nada. */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: opacity 0.3s, visibility 0.3s, transform 0.3s, background-color 0.25s;
+}
+
+.subir-topo.visivel {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.subir-topo:hover {
+    background-color: var(--realce);
+    border-color: var(--realce);
+}
+
+/* A seta é desenhada, não é imagem nem fonte de ícone: menos uma
+   coisa para carregar. */
+.subir-topo::before {
+    content: '';
+    width: 11px;
+    height: 11px;
+    border-left: 2px solid currentColor;
+    border-top: 2px solid currentColor;
+    transform: rotate(45deg);
+    margin-top: 4px;
+}
+
+@media (max-width: 620px) {
+    .subir-topo {
+        right: 16px;
+        bottom: 16px;
+        width: 46px;
+        height: 46px;
+    }
+}
+
+
+/* ---------------------------------------------------------------------
+   CONTATO E RODAPÉ
+   --------------------------------------------------------------------- */
+.contato {
+    background-color: var(--tinta);
+    color: var(--papel);
+    text-align: center;
+    padding: 96px 0;
+}
+
+.contato h2 {
+    font-family: var(--serifa-titulo);
+    font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+    line-height: 1.2;
+    margin-bottom: 18px;
+}
+
+.contato p {
+    color: #b9b1a5;
+    max-width: 30em;
+    margin: 0 auto 38px;
+}
+
+.rodape {
+    background-color: var(--tinta);
+    color: #8b8377;
+    border-top: 1px solid #332e28;
+    padding: 34px 0;
+    font-size: 0.85rem;
+}
+
+.rodape .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.rodape a { color: #b9b1a5; text-decoration: none; }
+.rodape a:hover { color: var(--papel); }
+
+.rodape-redes { display: flex; gap: 22px; }

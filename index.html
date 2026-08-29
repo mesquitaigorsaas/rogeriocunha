@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rogério Cunha — Advogado e Escritor</title>
+    <meta name="description" content="Livros e textos de Rogério Cunha sobre história, sociedade e comportamento humano.">
+
+    <!-- ENQUANTO FOR PRÉVIA: pede aos buscadores que não indexem.
+         Os livros e textos aqui são exemplos escritos por mim, e o nome
+         que aparece é o de uma pessoa real. Melhor que isso não caia no
+         Google como se fosse obra dele.
+         APAGUE ESTAS DUAS LINHAS quando o conteúdo verdadeiro entrar. -->
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="stylesheet" href="assets/css/estilo.css">
+</head>
+<body>
+
+    <!-- PRÉVIA: apague esta linha quando o conteúdo de verdade entrar. -->
+    <div class="faixa-previa">Prévia — textos, livros e imagens são apenas exemplos</div>
+
+    <header class="cabecalho">
+        <div class="container">
+            <a href="index.html" class="marca">
+                <strong>Rogério Cunha</strong>
+                <span>Advogado &amp; Escritor</span>
+            </a>
+
+            <button type="button" class="abrir-menu" id="abrirMenu" aria-label="Abrir menu">&#9776;</button>
+
+            <nav class="menu" id="menu">
+                <a href="index.html" class="ativo">Início</a>
+                <a href="#videos">Vídeos</a>
+                <a href="#textos">Textos</a>
+                <a href="#livros">Livros</a>
+                <a href="#sobre">O autor</a>
+                <a href="#contato">Contato</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- =============================================================
+         ABERTURA
+         ============================================================= -->
+    <section class="abertura">
+        <div class="container">
+            <div class="abertura-texto">
+                <p class="chamada-acima">História · Sociedade · Comportamento humano</p>
+
+                <h1>Escrever é a forma mais honesta de pensar em voz alta.</h1>
+
+                <p>
+                    Há trinta anos entre autos e livros, escrevo sobre aquilo que os
+                    tribunais revelam e a história insiste em repetir: as razões pelas
+                    quais as pessoas fazem o que fazem.
+                </p>
+
+                <div class="abertura-acoes">
+                    <a href="livros.html" class="botao">Conheça os livros</a>
+                    <a href="#textos" class="botao contorno">Ler os textos</a>
+                </div>
+            </div>
+
+            <div class="abertura-retrato">
+                <div class="retrato-moldura">
+                    <!-- FOTO DO AUTOR
+
+                         O quadro tem proporção 4x5 e a foto preenche
+                         tudo, cortando o que sobra. O "object-position"
+                         diz por onde cortar: 38% desce um pouco o
+                         enquadramento para o rosto não encostar no topo.
+                         Se quiser subir, use um número menor. -->
+                    <img src="assets/img/RogerioCunha.png"
+                         alt="Rogério Cunha lendo um de seus livros"
+                         style="object-position: center 38%;"
+                         data-reserva="Retrato do autor|Foto vertical">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =============================================================
+         VÍDEOS
+
+         COMO COLOCAR UM VÍDEO:
+         Pegue o endereço dele no YouTube e copie só o código que vem
+         depois de "v=" ou depois da última barra.
+
+             https://www.youtube.com/watch?v=AbCdEf12345
+                                             ^^^^^^^^^^^  é este
+             https://youtu.be/AbCdEf12345
+                              ^^^^^^^^^^^  ou este
+
+         Coloque em data-video="AbCdEf12345". A capa aparece sozinha,
+         e o vídeo só carrega quando alguém clica.
+         ============================================================= -->
+    <section class="secao creme" id="videos">
+        <div class="container">
+            <div class="titulo-secao">
+                <p class="chamada-acima">No vídeo</p>
+                <h2>Conversas gravadas</h2>
+                <p>
+                    Reflexões em voz alta sobre os mesmos assuntos dos textos —
+                    para quem prefere ouvir a ler.
+                </p>
+            </div>
+
+            <!-- ---------- Vídeo em destaque ---------- -->
+            <div class="video-destaque">
+                <div class="video-quadro" data-video="">
+                    <div class="video-reservado">
+                        <b>Vídeo em destaque</b>
+                        Cole aqui o código do YouTube
+                    </div>
+                    <div class="botao-play"></div>
+                </div>
+                <div class="video-legenda">
+                    <h3>O que a história ensina sobre a pressa de julgar</h3>
+                    <p>Uma conversa de 12 minutos sobre por que decidimos antes de entender.</p>
+                </div>
+            </div>
+
+            <!-- ---------- Outros vídeos ---------- -->
+            <div class="grade-videos">
+
+                <div>
+                    <div class="video-quadro" data-video="">
+                        <div class="video-reservado"><b>Vídeo</b>Código do YouTube</div>
+                        <div class="botao-play"></div>
+                    </div>
+                    <div class="video-legenda">
+                        <h3>A palavra escrita e o poder</h3>
+                        <p>Por que todo regime começou queimando livros.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="video-quadro" data-video="">
+                        <div class="video-reservado"><b>Vídeo</b>Código do YouTube</div>
+                        <div class="botao-play"></div>
+                    </div>
+                    <div class="video-legenda">
+                        <h3>Memória, herança e as contas que não fecham</h3>
+                        <p>O que cada geração acha que inventou.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="video-quadro" data-video="">
+                        <div class="video-reservado"><b>Vídeo</b>Código do YouTube</div>
+                        <div class="botao-play"></div>
+                    </div>
+                    <div class="video-legenda">
+                        <h3>Bastidores de um livro</h3>
+                        <p>Como nasce um ensaio, do caderno à gráfica.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="acao-central">
+                <!-- Trocar pelo canal do YouTube dele quando existir. -->
+                <a href="https://www.instagram.com/dr.rogeriocunha" class="botao contorno"
+                   target="_blank" rel="noopener">Ver todos os vídeos</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- =============================================================
+         TEXTOS
+         ============================================================= -->
+    <section class="secao" id="textos">
+        <div class="container">
+            <div class="titulo-secao">
+                <p class="chamada-acima">Do caderno</p>
+                <h2>Textos recentes</h2>
+                <p>
+                    Reflexões curtas sobre o que li, julguei e observei. Publicadas
+                    aqui antes de qualquer outro lugar.
+                </p>
+            </div>
+
+            <div class="grade-textos">
+
+                <a href="texto.html" class="cartao-texto">
+                    <div class="cartao-capa">
+                        <!-- IMAGEM DO TEXTO: <img src="..." alt="..."> -->
+                        <div class="reservado"><b>Imagem</b>Horizontal</div>
+                    </div>
+                    <p class="cartao-meta">12 de agosto · Sociedade</p>
+                    <h3>O que Roma ainda sussurra nos nossos tribunais</h3>
+                    <p>
+                        Dois mil anos depois, continuamos discutindo as mesmas três
+                        perguntas — e fingindo que são novas.
+                    </p>
+                    <span class="cartao-continua">Continuar lendo</span>
+                </a>
+
+                <a href="texto.html" class="cartao-texto">
+                    <div class="cartao-capa">
+                        <div class="reservado"><b>Imagem</b>Horizontal</div>
+                    </div>
+                    <p class="cartao-meta">29 de julho · Comportamento</p>
+                    <h3>Por que julgamos antes de entender</h3>
+                    <p>
+                        A pressa em ter razão é mais antiga que o direito, e custa
+                        mais caro do que se imagina.
+                    </p>
+                    <span class="cartao-continua">Continuar lendo</span>
+                </a>
+
+                <a href="texto.html" class="cartao-texto">
+                    <div class="cartao-capa">
+                        <div class="reservado"><b>Imagem</b>Horizontal</div>
+                    </div>
+                    <p class="cartao-meta">10 de julho · História</p>
+                    <h3>A palavra escrita como forma de resistência</h3>
+                    <p>
+                        Todo regime que quis calar um povo começou pelo mesmo lugar:
+                        os livros.
+                    </p>
+                    <span class="cartao-continua">Continuar lendo</span>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- =============================================================
+         LIVROS
+         ============================================================= -->
+    <section class="secao creme" id="livros">
+        <div class="container">
+            <div class="livro-destaque">
+                <div class="capa-livro">
+                    <!-- CAPA DO LIVRO
+                         Troque por: <img src="assets/img/livro-1.jpg" alt="Capa">
+                         Proporção 2x3, como capa de livro. -->
+                    <div class="capa-reservada">
+                        <small>Rogério Cunha</small>
+                        <strong>O Peso das Palavras</strong>
+                        <span></span>
+                        <em>Ensaios</em>
+                    </div>
+                </div>
+
+                <div class="livro-info">
+                    <p class="chamada-acima" style="color: var(--realce); font-size: 0.7rem; letter-spacing: 0.24em; text-transform: uppercase; margin-bottom: 16px;">Lançamento</p>
+
+                    <h3>O Peso das Palavras</h3>
+                    <p class="livro-subtitulo">Ensaios sobre justiça, memória e o que dizemos sem perceber</p>
+
+                    <p>
+                        Doze ensaios escritos ao longo de uma década de tribunal. Não é
+                        um livro sobre leis — é sobre as pessoas que chegam até elas, e
+                        sobre o que a linguagem revela quando ninguém está prestando
+                        atenção.
+                    </p>
+
+                    <div class="livro-ficha">
+                        <div><b>232</b> páginas</div>
+                        <div><b>1ª edição</b> 2025</div>
+                        <div><b>Capa dura</b> com sobrecapa</div>
+                        <div><b>Autografado</b> pelo autor</div>
+                    </div>
+
+                    <p class="livro-preco">
+                        R$ 68,00
+                        <small>Exemplar físico · frete combinado na conversa</small>
+                    </p>
+
+                    <!-- BOTÃO DE COMPRA
+                         Trocar o número por: 55 + DDD + telefone, só dígitos. -->
+                    <a href="https://wa.me/5535000000000?text=Ol%C3%A1%21%20Gostaria%20de%20um%20exemplar%20de%20O%20Peso%20das%20Palavras."
+                       class="botao zap" target="_blank" rel="noopener">
+                        Quero um exemplar
+                    </a>
+                </div>
+            </div>
+
+            <!-- ---------- Os outros títulos ----------
+                 Ficam logo abaixo do lançamento, na própria página
+                 inicial: quem chega aqui precisa ver que existe obra, e
+                 não só um livro. A capa vende antes do texto. -->
+            <div class="grade-livros" style="margin-top: 90px;">
+
+                <div class="item-livro">
+                    <div class="capa-livro">
+                        <!-- CAPA: <img src="assets/img/livro-2.jpg" alt="Capa de A Casa e a Rua"> -->
+                        <div class="capa-reservada">
+                            <small>Rogério Cunha</small>
+                            <strong>A Casa e a Rua</strong>
+                            <span></span>
+                            <em>Crônicas</em>
+                        </div>
+                    </div>
+                    <h3>A Casa e a Rua</h3>
+                    <p class="livro-subtitulo">Crônicas de uma cidade que mudou sem avisar</p>
+                    <p>
+                        Trinta e duas crônicas sobre o lugar onde nasceu — e sobre o
+                        que se perde quando uma cidade cresce mais rápido do que a
+                        memória de quem mora nela.
+                    </p>
+                    <p class="ficha-curta">184 páginas · Brochura · Autografado</p>
+                    <div class="linha-preco">
+                        <strong>R$ 52,00</strong>
+                        <a href="https://wa.me/5535000000000?text=Ol%C3%A1%21%20Gostaria%20de%20um%20exemplar%20de%20A%20Casa%20e%20a%20Rua."
+                           class="botao zap" target="_blank" rel="noopener">Quero um exemplar</a>
+                    </div>
+                </div>
+
+                <div class="item-livro">
+                    <div class="capa-livro">
+                        <div class="capa-reservada">
+                            <small>Rogério Cunha</small>
+                            <strong>Antes do Veredito</strong>
+                            <span></span>
+                            <em>Não ficção</em>
+                        </div>
+                    </div>
+                    <h3>Antes do Veredito</h3>
+                    <p class="livro-subtitulo">Sete histórias que chegaram ao tribunal tarde demais</p>
+                    <p>
+                        Sete casos reais, contados a partir do que aconteceu antes de
+                        virarem processo. Um retrato de como pequenas escolhas se
+                        transformam em destino.
+                    </p>
+                    <p class="ficha-curta">208 páginas · Brochura · Autografado</p>
+                    <div class="linha-preco">
+                        <strong>R$ 59,00</strong>
+                        <a href="https://wa.me/5535000000000?text=Ol%C3%A1%21%20Gostaria%20de%20um%20exemplar%20de%20Antes%20do%20Veredito."
+                           class="botao zap" target="_blank" rel="noopener">Quero um exemplar</a>
+                    </div>
+                </div>
+
+                <div class="item-livro">
+                    <div class="capa-livro">
+                        <div class="capa-reservada">
+                            <small>Rogério Cunha</small>
+                            <strong>O Tempo dos Outros</strong>
+                            <span></span>
+                            <em>Ensaios</em>
+                        </div>
+                    </div>
+                    <h3>O Tempo dos Outros</h3>
+                    <p class="livro-subtitulo">Sobre história, herança e as contas que ninguém fecha</p>
+                    <p>
+                        Um ensaio longo sobre por que cada geração acredita ter
+                        inventado os próprios dilemas — e o que ganharia se olhasse
+                        para trás antes de decidir.
+                    </p>
+                    <p class="ficha-curta">176 páginas · Brochura · Autografado</p>
+                    <div class="linha-preco">
+                        <strong>R$ 64,00</strong>
+                        <a href="https://wa.me/5535000000000?text=Ol%C3%A1%21%20Gostaria%20de%20um%20exemplar%20de%20O%20Tempo%20dos%20Outros."
+                           class="botao zap" target="_blank" rel="noopener">Quero um exemplar</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="acao-central">
+                <a href="livros.html" class="botao contorno">Ver todos os livros</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- =============================================================
+         O AUTOR
+         ============================================================= -->
+    <section class="secao" id="sobre">
+        <div class="container">
+            <div class="sobre-grade">
+                <div class="abertura-retrato" style="padding: 14px 0 14px 14px;">
+                    <div class="retrato-moldura">
+                        <!-- SEGUNDA FOTO: escrevendo, palestrando, na estante. -->
+                        <div class="reservado"><b>Segunda foto</b>Vertical</div>
+                    </div>
+                </div>
+
+                <div class="sobre-texto">
+                    <h2>Quem escreve</h2>
+
+                    <p>
+                        Advogado de formação, escritor por necessidade. Passei a vida
+                        ouvindo histórias que chegavam ao tribunal já com um final
+                        pronto — e escrevendo sobre tudo o que acontecia antes dele.
+                    </p>
+
+                    <blockquote class="citacao">
+                        Nenhum processo começa no dia em que é protocolado.
+                    </blockquote>
+
+                    <p>
+                        Escrevo sobre história, sociedade e comportamento humano porque
+                        são, no fundo, o mesmo assunto visto de três distâncias
+                        diferentes.
+                    </p>
+
+                    <div class="credenciais">
+                        <span>Advogado</span>
+                        <span>Doutor Honoris Causa</span>
+                        <span>Escritor</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =============================================================
+         GALERIA
+         ============================================================= -->
+    <section class="secao creme">
+        <div class="container">
+            <div class="titulo-secao">
+                <p class="chamada-acima">Registros</p>
+                <h2>Momentos</h2>
+            </div>
+
+            <div class="galeria">
+                <div class="galeria-item grande">
+                    <div class="reservado"><b>Foto principal</b>Lançamento, palestra</div>
+                </div>
+                <div class="galeria-item"><div class="reservado">Foto</div></div>
+                <div class="galeria-item"><div class="reservado">Foto</div></div>
+                <div class="galeria-item"><div class="reservado">Foto</div></div>
+                <div class="galeria-item"><div class="reservado">Foto</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =============================================================
+         CONTATO
+         ============================================================= -->
+    <section class="contato" id="contato">
+        <div class="container">
+            <h2>Vamos conversar?</h2>
+            <p>
+                Para adquirir um exemplar, convidar para uma palestra ou apenas
+                dizer o que achou de um texto.
+            </p>
+            <a href="https://wa.me/5535000000000?text=Ol%C3%A1%21%20Vim%20pelo%20site."
+               class="botao zap" target="_blank" rel="noopener">
+                Falar no WhatsApp
+            </a>
+        </div>
+    </section>
+
+    <footer class="rodape">
+        <div class="container">
+            <span>© 2026 Rogério Cunha</span>
+            <div class="rodape-redes">
+                <a href="https://www.instagram.com/dr.rogeriocunha" target="_blank" rel="noopener">Instagram</a>
+                <a href="livros.html">Livros</a>
+                <a href="#textos">Textos</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // =============================================================
+        // VÍDEOS DO YOUTUBE
+        //
+        // Cada quadro mostra só a capa. O tocador do YouTube — que traz
+        // junto uns dois megabytes de código do Google — só entra na
+        // página quando alguém clica para assistir.
+        //
+        // A capa vem do endereço público de miniatura do YouTube, sem
+        // precisar de chave nem cadastro.
+        // =============================================================
+        document.querySelectorAll('.video-quadro').forEach((quadro) => {
+            const codigo = quadro.dataset.video;
+
+            // Sem código ainda: fica o espaço reservado como está.
+            if (!codigo) return;
+
+            const capa = document.createElement('img');
+            capa.src = `https://img.youtube.com/vi/${codigo}/maxresdefault.jpg`;
+            capa.alt = '';
+            capa.loading = 'lazy';
+
+            // Vídeo antigo ou gravado em baixa não tem a miniatura
+            // grande; nesse caso cai na menor, que sempre existe.
+            capa.onerror = () => {
+                capa.onerror = null;
+                capa.src = `https://img.youtube.com/vi/${codigo}/hqdefault.jpg`;
+            };
+
+            quadro.querySelector('.video-reservado')?.remove();
+            quadro.prepend(capa);
+
+            quadro.addEventListener('click', () => {
+                const tocador = document.createElement('iframe');
+
+                // youtube-nocookie: mesma reprodução, sem o YouTube
+                // deixar rastreador no navegador de quem só passou pelo
+                // site. Melhor para a LGPD e não custa nada.
+                tocador.src = `https://www.youtube-nocookie.com/embed/${codigo}?autoplay=1&rel=0`;
+                // A legenda é irmã do quadro, então quem sabe achá-la é o
+                // pai. (closest('div') devolvia o próprio quadro, que já
+                // é um div — e o título nunca chegava aqui.)
+                tocador.title = quadro.parentElement.querySelector('.video-legenda h3')?.textContent.trim() || 'Vídeo';
+                tocador.allow = 'accelerometer; autoplay; encrypted-media; picture-in-picture';
+                tocador.allowFullscreen = true;
+
+                quadro.innerHTML = '';
+                quadro.appendChild(tocador);
+                quadro.style.cursor = 'default';
+            }, { once: true });
+        });
+    </script>
+
+    <script src="assets/js/site.js"></script>
+
+</body>
+</html>
