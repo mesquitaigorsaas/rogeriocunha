@@ -11,3 +11,6 @@ desktop.ini
 node_modules/
 .env
 .env.*
+
+# Documento comercial: fica na maquina, nao vai para o site publicado
+proposta-whatsapp.md
