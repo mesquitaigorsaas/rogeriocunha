@@ -14,3 +14,8 @@ node_modules/
 
 # Documento comercial: fica na maquina, nao vai para o site publicado
 proposta-whatsapp.md
+
+# Material de trabalho: originais das fotos, capas dos livros, recibos,
+# arquivos recebidos por WhatsApp. Fica na maquina, nunca no site publicado.
+# O que o site usa esta em assets/.
+Docs/
