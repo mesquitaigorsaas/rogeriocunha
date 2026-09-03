@@ -46,11 +46,11 @@
     <section class="abertura">
         <div class="container">
             <div class="abertura-texto">
-                <p class="chamada-acima">História · Sociedade · Comportamento humano</p>
+                <p class="chamada-acima" data-editavel="abertura.chamada">História · Sociedade · Comportamento humano</p>
 
-                <h1>Escrever é a forma mais honesta de pensar em voz alta.</h1>
+                <h1 data-editavel="abertura.titulo">Escrever é a forma mais honesta de pensar em voz alta.</h1>
 
-                <p>
+                <p data-editavel="abertura.texto">
                     Há trinta anos entre autos e livros, escrevo sobre aquilo que os
                     tribunais revelam e a história insiste em repetir: as razões pelas
                     quais as pessoas fazem o que fazem.
@@ -98,9 +98,9 @@
     <section class="secao creme" id="videos">
         <div class="container">
             <div class="titulo-secao">
-                <p class="chamada-acima">No vídeo</p>
-                <h2>Conversas gravadas</h2>
-                <p>
+                <p class="chamada-acima" data-editavel="videos.chamada">No vídeo</p>
+                <h2 data-editavel="videos.titulo">Conversas gravadas</h2>
+                <p data-editavel="videos.texto">
                     Reflexões em voz alta sobre os mesmos assuntos dos textos —
                     para quem prefere ouvir a ler.
                 </p>
@@ -173,9 +173,9 @@
     <section class="secao" id="textos">
         <div class="container">
             <div class="titulo-secao">
-                <p class="chamada-acima">Do caderno</p>
-                <h2>Textos recentes</h2>
-                <p>
+                <p class="chamada-acima" data-editavel="textos.chamada">Do caderno</p>
+                <h2 data-editavel="textos.titulo">Textos recentes</h2>
+                <p data-editavel="textos.texto">
                     Reflexões curtas sobre o que li, julguei e observei. Publicadas
                     aqui antes de qualquer outro lugar.
                 </p>
@@ -389,7 +389,7 @@
                 </div>
 
                 <div class="sobre-texto">
-                    <h2>Quem escreve</h2>
+                    <h2 data-editavel="sobre.titulo">Quem escreve</h2>
 
                     <!-- Biografia do autor, tirada da orelha de "A Sombra da
                          Guerra". O impresso tinha três erros e o Rogério pediu
@@ -404,7 +404,7 @@
                          O nome sem acento e proposital: como escritor ele
                          assina Rogerio Cunha, sem acento. -->
 
-                    <p>
+                    <p data-editavel="sobre.biografia1">
                         <b>Rogerio Olavo Cunha Leite:</b> Dr. h. c. mult. em História
                         Imperial Brasileira e História Antiga e Medieval. Mineiro de
                         origem e convicção, o autor é advogado aposentado, com sólida
@@ -415,7 +415,7 @@
                         Gerais, ampliando sua vivência no setor público.
                     </p>
 
-                    <p>
+                    <p data-editavel="sobre.biografia2">
                         Para além de sua carreira jurídica, dedica-se ao estudo da
                         História e ao exame das múltiplas facetas do comportamento
                         humano, áreas que o inspiram em sua produção intelectual e
@@ -425,7 +425,7 @@
                         Letras e Artes.
                     </p>
 
-                    <p>
+                    <p data-editavel="sobre.biografia3">
                         Arrimo de família, aos 15 anos o Autor deixou sua terra natal
                         Itanhandu, no Sul de Minas, indo para Belo Horizonte para
                         continuar seus estudos e trabalhar. Formou-se na PUCMINAS em
@@ -434,7 +434,7 @@
                         especializações em diversos cursos, seminários, palestras.
                     </p>
 
-                    <p>
+                    <p data-editavel="sobre.biografia4">
                         Depois de 37 anos exercendo a advocacia e consultoria em diversas
                         empresas renomadas e junto ao Governo de Minas Gerais, o Autor
                         se aposentou para trilhar outros caminhos e
@@ -469,8 +469,8 @@
     <section class="secao creme">
         <div class="container">
             <div class="titulo-secao">
-                <p class="chamada-acima">Registros</p>
-                <h2>Momentos</h2>
+                <p class="chamada-acima" data-editavel="momentos.chamada">Registros</p>
+                <h2 data-editavel="momentos.titulo">Momentos</h2>
             </div>
 
             <div class="galeria">
@@ -503,8 +503,8 @@
          ============================================================= -->
     <section class="contato" id="contato">
         <div class="container">
-            <h2>Vamos conversar?</h2>
-            <p>
+            <h2 data-editavel="contato.titulo">Vamos conversar?</h2>
+            <p data-editavel="contato.texto">
                 Para adquirir um exemplar ou apenas dizer o que achou
                 de um texto.
             </p>
@@ -578,6 +578,14 @@
             }, { once: true });
         });
     </script>
+
+    <!-- O banco, e a camada que deixa o site editável para quem entra.
+         Para quem visita, estes três arquivos não mudam nada do que
+         aparece: o texto da página continua sendo o que está escrito
+         aqui no HTML. -->
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/edicao.js"></script>
 
     <script src="assets/js/site.js"></script>
 

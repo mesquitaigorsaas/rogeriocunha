@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar — Rogério Cunha</title>
+
+    <!-- Página de trabalho: não tem por que aparecer em busca. -->
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="stylesheet" href="assets/css/estilo.css">
+</head>
+<body class="pagina-entrar">
+
+    <!-- =================================================================
+         A ENTRADA DO AUTOR
+
+         Não existe tela de "criar conta", e é de propósito: uma pessoa
+         só edita este site. Uma tela de cadastro aberta seria mais uma
+         porta para vigiar, sem nenhum ganho — quem precisa de acesso
+         ganha do administrador, pelo painel do Supabase.
+
+         O endereço desta página também não está no menu do site. Quem
+         precisa dela sabe onde ela fica; quem visita não tem por que
+         esbarrar num campo de senha.
+         ================================================================= -->
+    <main class="caixa-entrar">
+
+        <a href="index.html" class="marca">
+            <strong>Rogério Cunha</strong>
+            <span>Advogado &amp; Escritor</span>
+        </a>
+
+        <h1>Entrar para editar</h1>
+        <p class="explicativo">
+            Depois de entrar, o site abre do jeito de sempre — com um botão
+            <b>Editar</b> ao lado de cada parte que você pode mudar.
+        </p>
+
+        <form id="formaEntrar">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" autocomplete="username" required>
+
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" autocomplete="current-password" required>
+
+            <button type="submit" class="botao" id="botaoEntrar">Entrar</button>
+        </form>
+
+        <div class="recado-entrar" id="recado" hidden></div>
+
+    </main>
+
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const banco = window.supabase.createClient(
+            window.CONFIG_SUPABASE.url,
+            window.CONFIG_SUPABASE.chavePublica
+        );
+
+        const forma = document.getElementById('formaEntrar');
+        const botao = document.getElementById('botaoEntrar');
+        const recado = document.getElementById('recado');
+
+        function dizer(texto) {
+            recado.textContent = texto;
+            recado.hidden = false;
+        }
+
+        // Já está logado? Não faz sentido pedir a senha de novo.
+        banco.auth.getSession().then(({ data: { session } }) => {
+            if (session) window.location.href = 'index.html';
+        });
+
+        forma.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            botao.disabled = true;
+            botao.textContent = 'Entrando...';
+            recado.hidden = true;
+
+            const { error } = await banco.auth.signInWithPassword({
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('senha').value
+            });
+
+            if (error) {
+                botao.disabled = false;
+                botao.textContent = 'Entrar';
+
+                // O recado é o mesmo para e-mail errado e senha errada.
+                // Dizer "esse e-mail não existe" conta a um estranho
+                // quais endereços têm conta aqui.
+                //
+                // Em português claro, e não o "Invalid login credentials"
+                // que vem do Supabase: quem vai ler isto não fala inglês
+                // nem tem obrigação de saber o que é credencial.
+                dizer('E-mail ou senha não conferem. Confira e tente de novo.');
+                return;
+            }
+
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

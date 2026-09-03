@@ -1228,3 +1228,246 @@ a {
 .rodape a:hover { color: var(--papel); }
 
 .rodape-redes { display: flex; gap: 22px; }
+
+
+/* =====================================================================
+   MODO DE EDIÇÃO
+
+   Só aparece para quem entrou. Para quem visita, nada disto existe na
+   página — nem escondido: os elementos nem chegam a ser criados.
+
+   A regra que guiou o desenho daqui: quando o Rogério estiver editando,
+   o site tem que continuar parecendo o site. O texto não muda de fonte,
+   nem de tamanho, nem de lugar ao virar editável — senão ele edita uma
+   coisa e publica outra, e perde a confiança na tela.
+   ===================================================================== */
+
+.barra-edicao {
+    position: sticky;
+    top: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 12px 22px;
+    background: var(--realce);
+    color: var(--papel);
+    font-family: var(--serifa-texto);
+    font-size: 0.95rem;
+}
+
+.barra-aviso b {
+    display: block;
+    font-family: var(--serifa-titulo);
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+}
+
+.barra-sair {
+    flex-shrink: 0;
+    padding: 9px 20px;
+    border: 1px solid rgba(250, 247, 242, 0.55);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--papel);
+    font-family: var(--serifa-texto);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.barra-sair:hover { background: rgba(250, 247, 242, 0.14); }
+
+/* O cabeçalho do site também é grudento. Sem isto, os dois disputam o
+   topo e um cobre o outro na hora da rolagem. */
+.com-barra-edicao .cabecalho { top: 62px; }
+
+/* Uma marca discreta no que pode ser mudado: uma linha pontilhada por
+   baixo, que não desloca nada. Contorno em volta empurraria o texto e
+   mudaria o desenho da página no modo de edição. */
+.editavel {
+    border-bottom: 1px dashed var(--linha);
+}
+
+.editavel.editando {
+    border-bottom-color: var(--realce);
+    background: rgba(125, 60, 52, 0.05);
+    outline: none;
+}
+
+/* Colado no bloco de cima, afastado do de baixo.
+
+   Com o espaçamento parelho, o botão do subtítulo parecia pertencer ao
+   título logo abaixo — e editar o pedaço errado é o tipo de erro que
+   faz alguém desistir de mexer no site. A proximidade é o que diz a
+   quem o botão pertence, junto com a linha pontilhada que ele encosta. */
+.acoes-edicao {
+    display: inline-flex;
+    gap: 8px;
+    margin: 3px 0 30px;
+    vertical-align: middle;
+}
+
+.acoes-edicao button {
+    padding: 7px 16px;
+    border: 1px solid var(--linha);
+    border-radius: 4px;
+    background: var(--papel);
+    color: var(--tinta-suave);
+    font-family: var(--serifa-texto);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.acoes-edicao button:hover {
+    border-color: var(--realce);
+    color: var(--realce);
+}
+
+/* Salvar é o que ele veio fazer: sai do cinza dos outros e fica cheio.
+   Numa fileira onde tudo tem o mesmo peso, a pessoa precisa ler os três
+   para achar o que interessa. */
+.acoes-edicao .btn-salvar {
+    border-color: var(--realce);
+    background: var(--realce);
+    color: var(--papel);
+}
+
+.acoes-edicao .btn-salvar:hover {
+    background: var(--realce-escuro);
+    border-color: var(--realce-escuro);
+    color: var(--papel);
+}
+
+.acoes-edicao button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* O recado de "Salvo". Fica no rodapé da tela, longe das mãos e do
+   texto, e some sozinho. */
+.aviso-edicao {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translateX(-50%);
+    z-index: 3200;
+    padding: 13px 26px;
+    border-radius: 4px;
+    background: var(--tinta);
+    color: var(--papel);
+    font-family: var(--serifa-texto);
+    font-size: 0.95rem;
+    box-shadow: 0 6px 26px rgba(31, 28, 25, 0.28);
+}
+
+.aviso-edicao.erro { background: var(--realce-escuro); }
+
+@media (max-width: 620px) {
+    .barra-edicao { padding: 10px 16px; font-size: 0.88rem; }
+    .barra-aviso b { font-size: 0.98rem; }
+    .com-barra-edicao .cabecalho { top: 84px; }
+}
+
+
+/* =====================================================================
+   ENTRAR
+
+   Uma página sozinha, sem menu e sem rodapé. Quem chega aqui vem
+   fazer uma coisa só.
+   ===================================================================== */
+
+.pagina-entrar {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: var(--papel-fundo);
+}
+
+.caixa-entrar {
+    width: 100%;
+    max-width: 420px;
+    padding: 44px 38px;
+    background: var(--papel);
+    border: 1px solid var(--linha);
+    border-radius: 6px;
+}
+
+.caixa-entrar .marca {
+    display: block;
+    margin-bottom: 6px;
+    text-decoration: none;
+}
+
+.caixa-entrar .marca strong {
+    display: block;
+    font-family: var(--serifa-titulo);
+    font-size: 1.5rem;
+    color: var(--tinta);
+}
+
+.caixa-entrar .marca span {
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--tinta-fraca);
+}
+
+.caixa-entrar h1 {
+    margin: 30px 0 6px;
+    font-family: var(--serifa-titulo);
+    font-size: 1.6rem;
+    color: var(--tinta);
+}
+
+.caixa-entrar .explicativo { margin-bottom: 26px; }
+
+/* Campos grandes de propósito. Quem vai usar isto tem mais de setenta
+   anos, às vezes no celular: alvo pequeno erra, e errar a senha três
+   vezes faz a pessoa desistir e ligar para você. */
+.caixa-entrar label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 0.9rem;
+    color: var(--tinta-suave);
+}
+
+.caixa-entrar input {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 15px 16px;
+    border: 1px solid var(--linha);
+    border-radius: 4px;
+    background: var(--papel);
+    font-family: var(--serifa-texto);
+    font-size: 1.05rem;
+    color: var(--tinta);
+}
+
+.caixa-entrar input:focus {
+    outline: none;
+    border-color: var(--realce);
+}
+
+.caixa-entrar .botao {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    font-size: 1.05rem;
+    cursor: pointer;
+}
+
+.recado-entrar {
+    margin-top: 20px;
+    padding: 14px 16px;
+    border-radius: 4px;
+    background: rgba(125, 60, 52, 0.09);
+    color: var(--realce-escuro);
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
