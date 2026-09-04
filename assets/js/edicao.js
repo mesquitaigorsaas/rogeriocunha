@@ -280,6 +280,20 @@
         await aplicarTextosSalvos();
 
         souEditor = await conferirSessao();
+
+        // A resposta desta pergunta interessa a mais gente do que só a
+        // este arquivo: as listas da página inicial trocam "Ver todos os
+        // vídeos" por "Editar vídeos" quando é ele quem está olhando.
+        //
+        // Vai pelo <body> e por um aviso, e não por uma variável: quem
+        // perguntar depois lê o atributo, quem perguntar antes espera o
+        // aviso, e ninguém precisa se preocupar com quem carregou
+        // primeiro.
+        document.body.dataset.editor = souEditor ? 'sim' : 'nao';
+        document.dispatchEvent(new CustomEvent('editor-conferido', {
+            detail: { editor: souEditor }
+        }));
+
         if (!souEditor) return;
 
         montarBarra();

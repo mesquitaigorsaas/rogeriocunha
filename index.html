@@ -510,58 +510,6 @@
         </div>
     </footer>
 
-    <script>
-        // =============================================================
-        // VÍDEOS DO YOUTUBE
-        //
-        // Cada quadro mostra só a capa. O tocador do YouTube — que traz
-        // junto uns dois megabytes de código do Google — só entra na
-        // página quando alguém clica para assistir.
-        //
-        // A capa vem do endereço público de miniatura do YouTube, sem
-        // precisar de chave nem cadastro.
-        // =============================================================
-        document.querySelectorAll('.video-quadro').forEach((quadro) => {
-            const codigo = quadro.dataset.video;
-
-            // Sem código ainda: fica o espaço reservado como está.
-            if (!codigo) return;
-
-            const capa = document.createElement('img');
-            capa.src = `https://img.youtube.com/vi/${codigo}/maxresdefault.jpg`;
-            capa.alt = '';
-            capa.loading = 'lazy';
-
-            // Vídeo antigo ou gravado em baixa não tem a miniatura
-            // grande; nesse caso cai na menor, que sempre existe.
-            capa.onerror = () => {
-                capa.onerror = null;
-                capa.src = `https://img.youtube.com/vi/${codigo}/hqdefault.jpg`;
-            };
-
-            quadro.querySelector('.video-reservado')?.remove();
-            quadro.prepend(capa);
-
-            quadro.addEventListener('click', () => {
-                const tocador = document.createElement('iframe');
-
-                // youtube-nocookie: mesma reprodução, sem o YouTube
-                // deixar rastreador no navegador de quem só passou pelo
-                // site. Melhor para a LGPD e não custa nada.
-                tocador.src = `https://www.youtube-nocookie.com/embed/${codigo}?autoplay=1&rel=0`;
-                // A legenda é irmã do quadro, então quem sabe achá-la é o
-                // pai. (closest('div') devolvia o próprio quadro, que já
-                // é um div — e o título nunca chegava aqui.)
-                tocador.title = quadro.parentElement.querySelector('.video-legenda h3')?.textContent.trim() || 'Vídeo';
-                tocador.allow = 'accelerometer; autoplay; encrypted-media; picture-in-picture';
-                tocador.allowFullscreen = true;
-
-                quadro.innerHTML = '';
-                quadro.appendChild(tocador);
-                quadro.style.cursor = 'default';
-            }, { once: true });
-        });
-    </script>
 
     <!-- O banco, e a camada que deixa o site editável para quem entra.
          Para quem visita, estes três arquivos não mudam nada do que
@@ -575,6 +523,12 @@
          window.BANCO. Antes dele, artigos.js não teria com o que falar e
          sairia calado, deixando os cartões de exemplo no lugar. -->
     <script src="assets/js/artigos.js"></script>
+
+    <!-- As listas da página: por enquanto os vídeos, e é aqui que
+         livros e momentos entram depois. Leva junto o tocador do
+         YouTube, que morava solto nesta página e precisou virar função
+         para rodar de novo quando o banco troca os quadros. -->
+    <script src="assets/js/listas.js"></script>
 
     <script src="assets/js/site.js"></script>
 
