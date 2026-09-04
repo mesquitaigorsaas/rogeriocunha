@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar livros — Rogério Cunha</title>
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="stylesheet" href="../assets/css/estilo.css">
+    <link rel="stylesheet" href="../assets/css/painel.css">
+</head>
+<body class="painel">
+
+    <header class="painel-topo">
+        <div class="container">
+            <a href="../index.html" class="marca">
+                <strong>Rogério Cunha</strong>
+                <span>Editar livros</span>
+            </a>
+
+            <div class="painel-acoes">
+                <a href="../livros.html" class="btn">Ver o site</a>
+                <button type="button" class="btn" id="botaoSair">Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <div class="painel-cabeca">
+            <h1>Livros</h1>
+            <p>
+                <strong>O primeiro da lista é o que aparece grande</strong>, com a
+                sinopse inteira; os outros vão para a grade. O botão "Quero um
+                exemplar" é montado sozinho, já com o nome do livro escrito na
+                mensagem do WhatsApp.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 26px;">
+            <button type="button" class="btn principal" id="botaoNovo">Adicionar livro</button>
+        </div>
+
+        <div id="lista"></div>
+
+    </main>
+
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/painel.js"></script>
+
+    <script>
+    (function () {
+        'use strict';
+
+        const { banco, exigirEditor, sair, subirImagem, avisar,
+                confirmarNoBotao, proximaOrdem, trocarOrdem } = window.PAINEL;
+
+        const lista = document.getElementById('lista');
+        let livros = [];
+
+        // O livro novo vive só na tela até ter título e ser salvo. Um
+        // livro sem título na página inicial é um cartão vazio na
+        // vitrine — e vitrine é o que essa seção é.
+        let rascunho = null;
+
+        document.getElementById('botaoSair').addEventListener('click', sair);
+
+
+        // =============================================================
+        // CARREGAR E DESENHAR
+        // =============================================================
+
+        async function carregar() {
+            const { data, error } = await banco
+                .from('livros')
+                .select('*')
+                .order('ordem', { ascending: true });
+
+            if (error) {
+                avisar('Não consegui carregar os livros: ' + error.message, 'erro');
+                return;
+            }
+
+            livros = data || [];
+            desenhar();
+        }
+
+        function desenhar() {
+            lista.replaceChildren();
+
+            if (livros.length === 0 && !rascunho) {
+                const vazio = document.createElement('div');
+                vazio.className = 'vazio';
+                vazio.innerHTML = '<strong>Nenhum livro ainda</strong>';
+                vazio.append('Clique em "Adicionar livro".');
+                lista.appendChild(vazio);
+                return;
+            }
+
+            livros.forEach((livro, posicao) => lista.appendChild(montarFicha(livro, posicao)));
+            if (rascunho) lista.appendChild(montarFicha(rascunho, -1));
+        }
+
+        function montarFicha(livro, posicao) {
+            const novo = posicao === -1;
+
+            const ficha = document.createElement('div');
+            ficha.className = 'ficha' + (novo ? ' rascunho' : '');
+
+            // ---- topo ----
+            const topo = document.createElement('div');
+            topo.className = 'ficha-topo';
+
+            const identidade = document.createElement('div');
+            const nome = document.createElement('div');
+            nome.className = 'ficha-titulo';
+            nome.textContent = novo ? 'Livro novo' : (livro.titulo || 'Livro sem título');
+
+            const situacao = document.createElement('span');
+            situacao.className = 'ficha-sub';
+            situacao.textContent = novo
+                ? 'ainda não salvo'
+                : [
+                    posicao === 0 ? 'o primeiro — aparece grande no site' : `${posicao + 1}º da grade`,
+                    livro.preco === null ? 'sem preço' : precoEscrito(livro.preco)
+                  ].join(' · ');
+
+            identidade.append(nome, situacao);
+            topo.appendChild(identidade);
+
+            if (!novo) {
+                const setas = document.createElement('div');
+                setas.className = 'ordem-setas';
+                const subir = document.createElement('button');
+                subir.type = 'button';
+                subir.textContent = '↑';
+                subir.title = 'Subir na lista';
+                subir.disabled = posicao === 0;
+                subir.addEventListener('click', () => mover(posicao, posicao - 1));
+                const descer = document.createElement('button');
+                descer.type = 'button';
+                descer.textContent = '↓';
+                descer.title = 'Descer na lista';
+                descer.disabled = posicao === livros.length - 1;
+                descer.addEventListener('click', () => mover(posicao, posicao + 1));
+                setas.append(subir, descer);
+                topo.appendChild(setas);
+            }
+
+            // ---- corpo: capa à esquerda, campos à direita ----
+            const corpo = document.createElement('div');
+            corpo.className = 'ficha-corpo';
+
+            const ladoCapa = document.createElement('div');
+
+            const caixaCapa = document.createElement('label');
+            caixaCapa.className = 'caixa-imagem';
+
+            const entradaCapa = document.createElement('input');
+            entradaCapa.type = 'file';
+            entradaCapa.className = 'entrada-arquivo';
+            entradaCapa.accept = 'image/*';
+
+            const capaAtual = { url: livro.capa_url || '' };
+
+            function desenharCapa() {
+                caixaCapa.replaceChildren(entradaCapa);
+                if (capaAtual.url) {
+                    const img = document.createElement('img');
+                    img.src = capaAtual.url;
+                    img.alt = '';
+                    caixaCapa.appendChild(img);
+                } else {
+                    caixaCapa.append('Toque para escolher a capa');
+                }
+            }
+            desenharCapa();
+
+            entradaCapa.addEventListener('change', async (e) => {
+                const arquivo = e.target.files[0];
+                if (!arquivo) return;
+
+                caixaCapa.replaceChildren(entradaCapa);
+                caixaCapa.append('Enviando...');
+
+                try {
+                    capaAtual.url = await subirImagem(arquivo, 'capas');
+                    desenharCapa();
+                    avisar('Capa enviada. Clique em Salvar para valer.');
+                } catch (erro) {
+                    desenharCapa();
+                    avisar(erro.message, 'erro');
+                }
+            });
+
+            const dicaCapa = document.createElement('p');
+            dicaCapa.className = 'dica';
+            dicaCapa.textContent = 'A capa da frente, em pé. A arte fechada da gráfica não serve: ela traz orelha e contracapa na mesma imagem.';
+
+            ladoCapa.append(caixaCapa, dicaCapa);
+
+            const campos = document.createElement('div');
+
+            const cTitulo = campoTexto('Título', livro.titulo || '', '');
+            const cSubtitulo = campoTexto('Subtítulo', livro.subtitulo || '',
+                'A linha que vem embaixo do título.');
+            const cSinopse = campoArea('Sinopse', livro.sinopse || '',
+                'O texto da contracapa. Linha em branco separa parágrafos.');
+            const cFicha = campoTexto('Ficha', livro.ficha || '',
+                'Ex.: 240 páginas · 148x210mm. Aparece em letra pequena no cartão.');
+            const cEditora = campoTexto('Editora', livro.editora || '',
+                'Deixe em branco se for edição própria.');
+            const cPreco = campoTexto('Preço', livro.preco === null ? '' : String(livro.preco).replace('.', ','),
+                'Só o número, como 68 ou 68,50. Em branco, o cartão não mostra preço nenhum — nem "consulte".');
+
+            campos.append(cTitulo, cSubtitulo, cSinopse, cFicha, cEditora, cPreco);
+            corpo.append(ladoCapa, campos);
+
+            // ---- ações ----
+            const acoes = document.createElement('div');
+            acoes.className = 'ficha-acoes';
+
+            const salvar = document.createElement('button');
+            salvar.type = 'button';
+            salvar.className = 'btn principal';
+            salvar.textContent = novo ? 'Salvar e publicar' : 'Salvar livro';
+            salvar.addEventListener('click', () => gravar(livro, novo, {
+                capa_url: capaAtual.url,
+                titulo: valor(cTitulo),
+                subtitulo: valor(cSubtitulo),
+                sinopse: valor(cSinopse),
+                ficha: valor(cFicha),
+                editora: valor(cEditora),
+                preco: valor(cPreco)
+            }, salvar));
+
+            const apagar = document.createElement('button');
+            apagar.type = 'button';
+            apagar.className = 'btn perigo';
+            apagar.textContent = novo ? 'Descartar' : 'Apagar';
+            apagar.addEventListener('click', () => {
+                if (novo) { rascunho = null; desenhar(); return; }
+                remover(livro);
+            });
+
+            acoes.append(salvar, apagar);
+
+            ficha.append(topo, corpo, acoes);
+            return ficha;
+        }
+
+
+        // =============================================================
+        // CAMPOS
+        // =============================================================
+
+        function campoTexto(rotulo, valorInicial, dica) {
+            return montarCampo(rotulo, dica, () => {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = valorInicial;
+                return input;
+            });
+        }
+
+        function campoArea(rotulo, valorInicial, dica) {
+            return montarCampo(rotulo, dica, () => {
+                const area = document.createElement('textarea');
+                area.value = valorInicial;
+                return area;
+            });
+        }
+
+        function montarCampo(rotulo, dica, criarControle) {
+            const campo = document.createElement('div');
+            campo.className = 'campo';
+
+            const label = document.createElement('label');
+            label.textContent = rotulo;
+
+            campo.append(label, criarControle());
+
+            if (dica) {
+                const p = document.createElement('p');
+                p.className = 'dica';
+                p.textContent = dica;
+                campo.appendChild(p);
+            }
+
+            return campo;
+        }
+
+        const valor = (campo) => campo.querySelector('input, textarea').value;
+
+        /** "68,50" -> 68.5. Vazio, ou coisa que não é número, vira nulo. */
+        function precoLido(texto) {
+            const limpo = String(texto || '').trim().replace(/[^\d,.-]/g, '').replace(',', '.');
+            if (!limpo) return null;
+
+            const numero = Number(limpo);
+            return Number.isFinite(numero) && numero >= 0 ? numero : null;
+        }
+
+        function precoEscrito(preco) {
+            return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+
+        // =============================================================
+        // GRAVAR
+        // =============================================================
+
+        async function gravar(livro, novo, valores, botao) {
+            const titulo = valores.titulo.trim();
+
+            if (!titulo) {
+                avisar('O livro precisa de um título.', 'erro');
+                return;
+            }
+
+            botao.disabled = true;
+
+            const campos = {
+                titulo,
+                subtitulo: valores.subtitulo.trim(),
+                sinopse: valores.sinopse.trim(),
+                ficha: valores.ficha.trim(),
+                editora: valores.editora.trim(),
+                capa_url: valores.capa_url || null,
+                preco: precoLido(valores.preco),
+                publicado: true
+            };
+
+            const { error } = novo
+                ? await banco.from('livros').insert({ ...campos, ordem: proximaOrdem(livros) })
+                : await banco.from('livros').update(campos).eq('id', livro.id);
+
+            botao.disabled = false;
+
+            if (error) {
+                // O título é único no banco: dois livros com o mesmo nome
+                // dariam dois cartões iguais na vitrine.
+                const recado = /duplicate|unique/i.test(error.message)
+                    ? 'Já existe um livro com esse título.'
+                    : 'Não consegui salvar: ' + error.message;
+                avisar(recado, 'erro');
+                return;
+            }
+
+            confirmarNoBotao(botao, 'Livro salvo ✓');
+            avisar(novo ? 'Livro salvo e publicado no site.' : 'Livro salvo.');
+
+            if (novo) rascunho = null;
+            carregar();
+        }
+
+        function criar() {
+            if (rascunho) {
+                avisar('Termine o livro que você começou antes de adicionar outro.', 'erro');
+                return;
+            }
+
+            rascunho = {
+                titulo: '', subtitulo: '', sinopse: '',
+                ficha: '', editora: '', capa_url: '', preco: null
+            };
+            desenhar();
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        async function mover(de, para) {
+            try {
+                await trocarOrdem('livros', livros[de], livros[para]);
+                await carregar();
+                avisar('Ordem alterada.');
+            } catch (erro) {
+                avisar(erro.message, 'erro');
+            }
+        }
+
+        async function remover(livro) {
+            if (!window.confirm(`Apagar ${livro.titulo}? Isso não tem como desfazer.`)) return;
+
+            const { error } = await banco.from('livros').delete().eq('id', livro.id);
+
+            if (error) {
+                avisar('Não consegui apagar: ' + error.message, 'erro');
+                return;
+            }
+
+            avisar('Livro apagado.');
+            carregar();
+        }
+
+        document.getElementById('botaoNovo').addEventListener('click', criar);
+
+
+        // =============================================================
+        // ENTRADA
+        // =============================================================
+        (async function () {
+            const editor = await exigirEditor();
+            if (!editor) return;
+            carregar();
+        })();
+    })();
+    </script>
+
+</body>
+</html>

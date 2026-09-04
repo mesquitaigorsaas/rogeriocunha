@@ -182,6 +182,215 @@
 
 
     // =================================================================
+    // OS LIVROS
+    //
+    // Aparecem em dois lugares com a mesma cara: a seção da página
+    // inicial e a página inteira de livros. Um monta os dois.
+    // =================================================================
+
+    // O WhatsApp dele. Fica aqui porque é daqui que saem os botões
+    // montados na hora; os que estão escritos no HTML têm o mesmo
+    // número, e os dois precisam continuar iguais.
+    const WHATSAPP = '5531983071456';
+
+    function linkDoPedido(titulo) {
+        const texto = `Olá! Gostaria de um exemplar de ${titulo}.`;
+        return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(texto)}`;
+    }
+
+    /** O preço como a pessoa lê. Sem preço, devolve vazio. */
+    function precoEscrito(preco) {
+        if (preco === null || preco === undefined) return '';
+        return Number(preco).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function capaDoLivro(livro) {
+        const moldura = document.createElement('div');
+        moldura.className = 'capa-livro';
+
+        if (livro.capa_url) {
+            const img = document.createElement('img');
+            img.src = livro.capa_url;
+            img.alt = 'Capa de ' + livro.titulo;
+            img.loading = 'lazy';
+            moldura.appendChild(img);
+            return moldura;
+        }
+
+        // Sem capa, a capa desenhada — a mesma que o HTML já usava. Um
+        // retângulo vazio na vitrine parece defeito; isto parece uma
+        // capa sóbria.
+        const reservada = document.createElement('div');
+        reservada.className = 'capa-reservada';
+        const autor = document.createElement('small');
+        autor.textContent = 'Rogério Cunha';
+        const nome = document.createElement('strong');
+        nome.textContent = livro.titulo;
+        reservada.append(autor, nome, document.createElement('span'));
+        moldura.appendChild(reservada);
+
+        return moldura;
+    }
+
+    /** A sinopse, de texto puro para parágrafos. */
+    function paragrafos(texto) {
+        return String(texto || '')
+            .split(/\n\s*\n/)
+            .map((p) => p.trim().replace(/\s*\n\s*/g, ' '))
+            .filter(Boolean)
+            .map((t) => {
+                const p = document.createElement('p');
+                p.textContent = t;
+                return p;
+            });
+    }
+
+    function botaoDoPedido(livro) {
+        const a = document.createElement('a');
+        a.className = 'botao zap';
+        a.href = linkDoPedido(livro.titulo);
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = 'Quero um exemplar';
+        return a;
+    }
+
+    /** O livro grande, com a sinopse inteira. */
+    function montarDestaque(livro, comChamada) {
+        const bloco = document.createElement('div');
+        bloco.className = 'livro-destaque';
+
+        const info = document.createElement('div');
+        info.className = 'livro-info';
+
+        if (comChamada) {
+            const chamada = document.createElement('p');
+            chamada.className = 'chamada-acima';
+            chamada.style.cssText = 'color: var(--realce); font-size: 0.7rem; letter-spacing: 0.24em; text-transform: uppercase; margin-bottom: 16px;';
+            chamada.textContent = 'Lançamento';
+            info.appendChild(chamada);
+        }
+
+        const titulo = document.createElement('h3');
+        titulo.textContent = livro.titulo;
+        info.appendChild(titulo);
+
+        if (livro.subtitulo) {
+            const sub = document.createElement('p');
+            sub.className = 'livro-subtitulo';
+            sub.textContent = livro.subtitulo;
+            info.appendChild(sub);
+        }
+
+        info.append(...paragrafos(livro.sinopse));
+
+        // A ficha só nasce se houver o que pôr nela. Uma caixa de ficha
+        // vazia abre um buraco entre a sinopse e o preço.
+        const dados = [];
+        if (livro.editora) dados.push(['Editora', livro.editora]);
+        if (livro.ficha) dados.push([null, livro.ficha]);
+
+        if (dados.length) {
+            const ficha = document.createElement('div');
+            ficha.className = 'livro-ficha';
+            for (const [rotulo, valor] of dados) {
+                const item = document.createElement('div');
+                if (rotulo) {
+                    const b = document.createElement('b');
+                    b.textContent = valor;
+                    item.append(b, ' ' + rotulo.toLowerCase());
+                } else {
+                    item.textContent = valor;
+                }
+                ficha.appendChild(item);
+            }
+            info.appendChild(ficha);
+        }
+
+        // Sem preço, nenhuma linha de preço. Nem "consulte", nem zero.
+        if (livro.preco !== null) {
+            const preco = document.createElement('p');
+            preco.className = 'livro-preco';
+            preco.append(precoEscrito(livro.preco));
+            const nota = document.createElement('small');
+            nota.textContent = 'Exemplar físico · frete combinado na conversa';
+            preco.appendChild(nota);
+            info.appendChild(preco);
+        }
+
+        info.appendChild(botaoDoPedido(livro));
+
+        bloco.append(capaDoLivro(livro), info);
+        return bloco;
+    }
+
+    /** Um livro da grade. */
+    function montarCartaoDeLivro(livro) {
+        const item = document.createElement('div');
+        item.className = 'item-livro';
+
+        item.appendChild(capaDoLivro(livro));
+
+        const titulo = document.createElement('h3');
+        titulo.textContent = livro.titulo;
+        item.appendChild(titulo);
+
+        if (livro.subtitulo) {
+            const sub = document.createElement('p');
+            sub.className = 'livro-subtitulo';
+            sub.textContent = livro.subtitulo;
+            item.appendChild(sub);
+        }
+
+        item.append(...paragrafos(livro.sinopse));
+
+        if (livro.ficha) {
+            const ficha = document.createElement('p');
+            ficha.className = 'ficha-curta';
+            ficha.textContent = livro.ficha;
+            item.appendChild(ficha);
+        }
+
+        const linha = document.createElement('div');
+        linha.className = 'linha-preco';
+
+        if (livro.preco !== null) {
+            const preco = document.createElement('strong');
+            preco.textContent = precoEscrito(livro.preco);
+            linha.appendChild(preco);
+        }
+
+        linha.appendChild(botaoDoPedido(livro));
+        item.appendChild(linha);
+
+        return item;
+    }
+
+    async function montarLivros() {
+        const destaque = document.querySelector('.livro-destaque');
+        const grade = document.querySelector('.grade-livros');
+        if (!destaque || !grade) return;
+
+        const { data, error } = await window.BANCO
+            .from('livros')
+            .select('id, titulo, subtitulo, sinopse, capa_url, ficha, editora, preco, ordem')
+            .eq('publicado', true)
+            .order('ordem', { ascending: true });
+
+        if (error || !data || data.length === 0) return;
+
+        const [primeiro, ...resto] = data;
+
+        // A chamada "Lançamento" só existe na página inicial; na página
+        // de livros o destaque é só o primeiro da lista.
+        const naHome = Boolean(document.getElementById('videos'));
+
+        destaque.replaceWith(montarDestaque(primeiro, naHome));
+        grade.replaceChildren(...resto.map(montarCartaoDeLivro));
+    }
+
+
+    // =================================================================
     // O BOTÃO DA SEÇÃO, PARA QUEM ESTÁ EDITANDO
     //
     // Para quem visita, "Ver todos os vídeos" leva ao Instagram dele.
@@ -225,10 +434,42 @@
         galeria.parentElement.appendChild(acao);
     }
 
+    /**
+     * "Editar livros" entra ao lado de "Ver todos os livros", em vez de
+     * no lugar dele.
+     *
+     * Aqui os dois botões servem: mesmo editando, ele vai querer ver a
+     * página de livros como o comprador vê. Foi por isso que o dos
+     * vídeos pôde substituir — aquele levava ao Instagram, que não é o
+     * site — e este não pode.
+     */
+    function criarBotaoDosLivros() {
+        const secao = document.getElementById('livros') || document.querySelector('.grade-livros');
+        if (!secao || document.getElementById('editarLivros')) return;
+
+        const acao = secao.querySelector('.acao-central')
+            || (function () {
+                const nova = document.createElement('div');
+                nova.className = 'acao-central';
+                (secao.querySelector('.container') || secao).appendChild(nova);
+                return nova;
+            })();
+
+        const botao = document.createElement('a');
+        botao.id = 'editarLivros';
+        botao.className = 'botao contorno';
+        botao.href = (document.getElementById('videos') ? 'editar/' : 'editar/') + 'livros.html';
+        botao.textContent = 'Editar livros';
+        botao.style.marginLeft = '10px';
+
+        acao.appendChild(botao);
+    }
+
     document.addEventListener('editor-conferido', (e) => {
         if (!e.detail.editor) return;
         trocarBotaoDosVideos();
         criarBotaoDosMomentos();
+        criarBotaoDosLivros();
     });
 
 
@@ -242,5 +483,6 @@
     if (window.BANCO) {
         montarSecaoDeVideos();
         montarGaleria();
+        montarLivros();
     }
 })();
