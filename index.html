@@ -571,6 +571,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/edicao.js"></script>
 
+    <!-- Depois de edicao.js, que é quem cria o cliente do banco em
+         window.BANCO. Antes dele, artigos.js não teria com o que falar e
+         sairia calado, deixando os cartões de exemplo no lugar. -->
+    <script src="assets/js/artigos.js"></script>
+
     <script src="assets/js/site.js"></script>
 
 </body>
