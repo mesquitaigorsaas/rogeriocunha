@@ -146,6 +146,42 @@
 
 
     // =================================================================
+    // OS MOMENTOS
+    //
+    // A galeria tem uma foto grande e as outras menores. Quem é a
+    // grande: a primeira da ordem, pela mesma razão dos vídeos — um
+    // conceito a menos para ele entender.
+    // =================================================================
+
+    async function montarGaleria() {
+        const galeria = document.querySelector('.galeria');
+        if (!galeria) return;
+
+        const { data, error } = await window.BANCO
+            .from('momentos')
+            .select('id, imagem_url, descricao, enquadramento, ordem')
+            .eq('publicado', true)
+            .order('ordem', { ascending: true });
+
+        if (error || !data || data.length === 0) return;
+
+        galeria.replaceChildren(...data.map((momento, posicao) => {
+            const item = document.createElement('div');
+            item.className = 'galeria-item' + (posicao === 0 ? ' grande' : '');
+
+            const foto = document.createElement('img');
+            foto.src = momento.imagem_url;
+            foto.alt = momento.descricao || '';
+            foto.loading = 'lazy';
+            foto.style.objectPosition = momento.enquadramento || 'center 50%';
+
+            item.appendChild(foto);
+            return item;
+        }));
+    }
+
+
+    // =================================================================
     // O BOTÃO DA SEÇÃO, PARA QUEM ESTÁ EDITANDO
     //
     // Para quem visita, "Ver todos os vídeos" leva ao Instagram dele.
@@ -153,7 +189,7 @@
     // que é onde ele espera que esteja, ao lado do que quer mudar.
     // =================================================================
 
-    function trocarBotaoDaSecao() {
+    function trocarBotaoDosVideos() {
         const secao = document.getElementById('videos');
         const botao = secao && secao.querySelector('.acao-central a');
         if (!botao) return;
@@ -164,8 +200,35 @@
         botao.removeAttribute('rel');
     }
 
+    /**
+     * A galeria não tem botão nenhum no fim — para quem visita, ela é só
+     * de olhar. Então, para ele, o botão nasce.
+     *
+     * Nasce só no modo de edição, e some quando ele sai: quem visita
+     * continua vendo a galeria como sempre foi, sem uma porta a mais na
+     * página.
+     */
+    function criarBotaoDosMomentos() {
+        const galeria = document.querySelector('.galeria');
+        if (!galeria || document.getElementById('editarMomentos')) return;
+
+        const acao = document.createElement('div');
+        acao.className = 'acao-central';
+
+        const botao = document.createElement('a');
+        botao.id = 'editarMomentos';
+        botao.className = 'botao contorno';
+        botao.href = 'editar/momentos.html';
+        botao.textContent = 'Editar momentos';
+
+        acao.appendChild(botao);
+        galeria.parentElement.appendChild(acao);
+    }
+
     document.addEventListener('editor-conferido', (e) => {
-        if (e.detail.editor) trocarBotaoDaSecao();
+        if (!e.detail.editor) return;
+        trocarBotaoDosVideos();
+        criarBotaoDosMomentos();
     });
 
 
@@ -176,5 +239,8 @@
     // carregado, Supabase fora do ar — as listas ficam com o HTML, que é
     // exatamente o que deve acontecer.
     // =================================================================
-    if (window.BANCO) montarSecaoDeVideos();
+    if (window.BANCO) {
+        montarSecaoDeVideos();
+        montarGaleria();
+    }
 })();

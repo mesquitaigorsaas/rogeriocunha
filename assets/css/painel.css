@@ -303,6 +303,25 @@ body.painel {
     padding: 12px;
 }
 
+/* A moldura da foto na tela de momentos.
+
+   Ela tem a mesma proporção do quadro da galeria de propósito: é
+   arrastando a barra e olhando aqui que ele decide o enquadramento, e
+   isso só funciona se o que ele vê aqui for o que vai aparecer lá. */
+.previa-foto {
+    aspect-ratio: 4 / 3;
+    background: #ded5c8;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.previa-foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
 .previa-video img {
     width: 100%;
     height: 100%;

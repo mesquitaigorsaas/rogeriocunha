@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar momentos — Rogério Cunha</title>
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="stylesheet" href="../assets/css/estilo.css">
+    <link rel="stylesheet" href="../assets/css/painel.css">
+</head>
+<body class="painel">
+
+    <header class="painel-topo">
+        <div class="container">
+            <a href="../index.html" class="marca">
+                <strong>Rogério Cunha</strong>
+                <span>Editar momentos</span>
+            </a>
+
+            <div class="painel-acoes">
+                <a href="../index.html#momentos" class="btn">Ver o site</a>
+                <button type="button" class="btn" id="botaoSair">Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <div class="painel-cabeca">
+            <h1>Momentos</h1>
+            <p>
+                As fotos da galeria. Escolha a foto no computador ou no celular e
+                ela já sobe. <strong>A primeira da lista aparece maior</strong>;
+                use as setas para mudar a ordem.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 26px;">
+            <label class="btn principal" for="entradaFoto" id="rotuloNova">Adicionar foto</label>
+            <input type="file" id="entradaFoto" class="entrada-arquivo" accept="image/*" multiple>
+        </div>
+
+        <div id="lista"></div>
+
+    </main>
+
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/painel.js"></script>
+
+    <script>
+    (function () {
+        'use strict';
+
+        const { banco, exigirEditor, sair, subirImagem, avisar,
+                confirmarNoBotao, proximaOrdem, trocarOrdem } = window.PAINEL;
+
+        const lista = document.getElementById('lista');
+        const entrada = document.getElementById('entradaFoto');
+        const rotuloNova = document.getElementById('rotuloNova');
+
+        let momentos = [];
+
+        document.getElementById('botaoSair').addEventListener('click', sair);
+
+
+        // =============================================================
+        // CARREGAR E DESENHAR
+        // =============================================================
+
+        async function carregar() {
+            const { data, error } = await banco
+                .from('momentos')
+                .select('*')
+                .order('ordem', { ascending: true });
+
+            if (error) {
+                avisar('Não consegui carregar as fotos: ' + error.message, 'erro');
+                return;
+            }
+
+            momentos = data || [];
+            desenhar();
+        }
+
+        function desenhar() {
+            lista.replaceChildren();
+
+            if (momentos.length === 0) {
+                const vazio = document.createElement('div');
+                vazio.className = 'vazio';
+                vazio.innerHTML = '<strong>Nenhuma foto ainda</strong>';
+                vazio.append('Clique em "Adicionar foto". Dá para escolher várias de uma vez.');
+                lista.appendChild(vazio);
+                return;
+            }
+
+            momentos.forEach((momento, posicao) => lista.appendChild(montarFicha(momento, posicao)));
+        }
+
+        function montarFicha(momento, posicao) {
+            const ficha = document.createElement('div');
+            ficha.className = 'ficha';
+
+            // ---- topo ----
+            const topo = document.createElement('div');
+            topo.className = 'ficha-topo';
+
+            const identidade = document.createElement('div');
+            const nome = document.createElement('div');
+            nome.className = 'ficha-titulo';
+            nome.textContent = momento.descricao || 'Foto sem descrição';
+            const situacao = document.createElement('span');
+            situacao.className = 'ficha-sub';
+            situacao.textContent = posicao === 0
+                ? 'a primeira — aparece maior no site'
+                : `${posicao + 1}ª da galeria`;
+            identidade.append(nome, situacao);
+
+            const setas = document.createElement('div');
+            setas.className = 'ordem-setas';
+            const subir = document.createElement('button');
+            subir.type = 'button';
+            subir.textContent = '↑';
+            subir.title = 'Subir na galeria';
+            subir.disabled = posicao === 0;
+            subir.addEventListener('click', () => mover(posicao, posicao - 1));
+            const descer = document.createElement('button');
+            descer.type = 'button';
+            descer.textContent = '↓';
+            descer.title = 'Descer na galeria';
+            descer.disabled = posicao === momentos.length - 1;
+            descer.addEventListener('click', () => mover(posicao, posicao + 1));
+            setas.append(subir, descer);
+
+            topo.append(identidade, setas);
+
+            // ---- corpo ----
+            const corpo = document.createElement('div');
+            corpo.className = 'ficha-corpo';
+
+            const moldura = document.createElement('div');
+            moldura.className = 'previa-foto';
+            const foto = document.createElement('img');
+            foto.src = momento.imagem_url;
+            foto.alt = momento.descricao || '';
+            foto.style.objectPosition = momento.enquadramento || 'center 50%';
+            moldura.appendChild(foto);
+
+            const campos = document.createElement('div');
+
+            const campoDescricao = criarCampo(
+                'Descrição', momento.descricao || '',
+                'Não aparece na tela. É o que uma pessoa cega ouve no lugar da foto, e o que o Google lê.'
+            );
+
+            // O enquadramento é valor de CSS, e ninguém vai digitar
+            // "center 36%". Vira uma barra: ele arrasta e vê a foto se
+            // mexer na moldura, que é o formato em que ela vai aparecer
+            // no site.
+            const campoCorte = document.createElement('div');
+            campoCorte.className = 'campo';
+            const rotuloCorte = document.createElement('label');
+            rotuloCorte.textContent = 'Enquadramento';
+            const barra = document.createElement('input');
+            barra.type = 'range';
+            barra.min = '0';
+            barra.max = '100';
+            barra.step = '1';
+            barra.value = String(porcentagemDe(momento.enquadramento));
+            barra.style.width = '100%';
+            const dicaCorte = document.createElement('p');
+            dicaCorte.className = 'dica';
+            dicaCorte.textContent = 'A galeria corta a foto num formato fixo. Arraste para escolher que parte fica visível.';
+            barra.addEventListener('input', () => {
+                foto.style.objectPosition = `center ${barra.value}%`;
+            });
+            campoCorte.append(rotuloCorte, barra, dicaCorte);
+
+            campos.append(campoDescricao, campoCorte);
+            corpo.append(moldura, campos);
+
+            // ---- ações ----
+            const acoes = document.createElement('div');
+            acoes.className = 'ficha-acoes';
+
+            const salvar = document.createElement('button');
+            salvar.type = 'button';
+            salvar.className = 'btn principal';
+            salvar.textContent = 'Salvar foto';
+            salvar.addEventListener('click', () => gravar(momento, {
+                descricao: campoDescricao.querySelector('input').value,
+                enquadramento: `center ${barra.value}%`
+            }, salvar));
+
+            const trocar = document.createElement('label');
+            trocar.className = 'btn';
+            trocar.textContent = 'Trocar a imagem';
+            const entradaTroca = document.createElement('input');
+            entradaTroca.type = 'file';
+            entradaTroca.className = 'entrada-arquivo';
+            entradaTroca.accept = 'image/*';
+            entradaTroca.addEventListener('change', (e) => {
+                if (e.target.files[0]) trocarImagem(momento, e.target.files[0]);
+            });
+            trocar.appendChild(entradaTroca);
+
+            const apagar = document.createElement('button');
+            apagar.type = 'button';
+            apagar.className = 'btn perigo';
+            apagar.textContent = 'Apagar';
+            apagar.addEventListener('click', () => remover(momento));
+
+            acoes.append(salvar, trocar, apagar);
+
+            ficha.append(topo, corpo, acoes);
+            return ficha;
+        }
+
+        function criarCampo(rotulo, valor, dica) {
+            const campo = document.createElement('div');
+            campo.className = 'campo';
+
+            const label = document.createElement('label');
+            label.textContent = rotulo;
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = valor;
+
+            campo.append(label, input);
+
+            if (dica) {
+                const p = document.createElement('p');
+                p.className = 'dica';
+                p.textContent = dica;
+                campo.appendChild(p);
+            }
+
+            return campo;
+        }
+
+        /** "center 36%" -> 36. Sem número reconhecível, fica no meio. */
+        function porcentagemDe(enquadramento) {
+            const achou = String(enquadramento || '').match(/(\d+)%/);
+            return achou ? Number(achou[1]) : 50;
+        }
+
+
+        // =============================================================
+        // ENVIAR, GRAVAR, APAGAR
+        // =============================================================
+
+        entrada.addEventListener('change', async (e) => {
+            const arquivos = Array.from(e.target.files);
+            if (arquivos.length === 0) return;
+
+            rotuloNova.textContent = 'Enviando...';
+            rotuloNova.style.pointerEvents = 'none';
+
+            let enviadas = 0;
+
+            // Uma de cada vez, e não todas juntas. São fotos de celular
+            // de 3 a 8 MB: dez subindo em paralelo numa internet de
+            // cidade pequena travam as dez.
+            for (const arquivo of arquivos) {
+                try {
+                    const url = await subirImagem(arquivo, 'momentos');
+
+                    const { error } = await banco.from('momentos').insert({
+                        imagem_url: url,
+                        descricao: '',
+                        ordem: proximaOrdem(momentos) + enviadas * 10,
+                        publicado: true
+                    });
+
+                    if (error) throw new Error(error.message);
+                    enviadas++;
+                } catch (erro) {
+                    avisar(`Não consegui enviar ${arquivo.name}: ${erro.message}`, 'erro');
+                }
+            }
+
+            rotuloNova.textContent = 'Adicionar foto';
+            rotuloNova.style.pointerEvents = '';
+            entrada.value = '';
+
+            if (enviadas > 0) {
+                avisar(enviadas === 1 ? 'Foto no ar.' : `${enviadas} fotos no ar.`);
+                carregar();
+            }
+        });
+
+        async function gravar(momento, valores, botao) {
+            botao.disabled = true;
+
+            const { error } = await banco.from('momentos').update({
+                descricao: valores.descricao.trim(),
+                enquadramento: valores.enquadramento
+            }).eq('id', momento.id);
+
+            botao.disabled = false;
+
+            if (error) {
+                avisar('Não consegui salvar: ' + error.message, 'erro');
+                return;
+            }
+
+            confirmarNoBotao(botao, 'Foto salva ✓');
+            avisar('Foto salva.');
+            carregar();
+        }
+
+        async function trocarImagem(momento, arquivo) {
+            avisar('Enviando a imagem...');
+
+            try {
+                const url = await subirImagem(arquivo, 'momentos');
+
+                const { error } = await banco.from('momentos')
+                    .update({ imagem_url: url })
+                    .eq('id', momento.id);
+
+                if (error) throw new Error(error.message);
+
+                avisar('Imagem trocada.');
+                carregar();
+            } catch (erro) {
+                avisar(erro.message, 'erro');
+            }
+        }
+
+        async function mover(de, para) {
+            try {
+                await trocarOrdem('momentos', momentos[de], momentos[para]);
+                await carregar();
+                avisar('Ordem alterada.');
+            } catch (erro) {
+                avisar(erro.message, 'erro');
+            }
+        }
+
+        async function remover(momento) {
+            if (!window.confirm('Apagar esta foto? Isso não tem como desfazer.')) return;
+
+            const { error } = await banco.from('momentos').delete().eq('id', momento.id);
+
+            if (error) {
+                avisar('Não consegui apagar: ' + error.message, 'erro');
+                return;
+            }
+
+            avisar('Foto apagada.');
+            carregar();
+        }
+
+
+        // =============================================================
+        // ENTRADA
+        // =============================================================
+        (async function () {
+            const editor = await exigirEditor();
+            if (!editor) return;
+            carregar();
+        })();
+    })();
+    </script>
+
+</body>
+</html>
