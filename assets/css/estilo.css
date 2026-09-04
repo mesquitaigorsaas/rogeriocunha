@@ -634,7 +634,12 @@ a {
 /* A capa "de verdade" e o espaço reservado têm a mesma proporção de
    livro, então trocar um pelo outro não mexe no layout. */
 .capa-livro {
-    aspect-ratio: 2 / 3;
+    /* A proporção da capa impressa dele: 152x210mm. Era 2/3, que é a
+       proporção genérica de livro — e com as capas de verdade no lugar
+       do desenho reservado, esses poucos por cento de diferença faziam
+       o `object-fit: cover` comer uma tira das laterais. Numa capa em
+       que o nome do autor encosta na borda, a tira comida é o nome. */
+    aspect-ratio: 152 / 210;
     background-color: var(--papel-fundo);
     box-shadow: 0 18px 40px rgba(31, 28, 25, 0.16);
     overflow: hidden;
