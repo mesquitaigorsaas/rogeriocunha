@@ -118,18 +118,22 @@
 
         const { data, error } = await window.BANCO
             .from('videos')
-            .select('id, codigo_youtube, titulo, legenda, destaque, ordem')
+            .select('id, codigo_youtube, titulo, legenda, ordem')
             .eq('publicado', true)
-            .order('destaque', { ascending: false })
             .order('ordem', { ascending: true });
 
         // Erro, ou ele ainda não cadastrou nenhum: fica o que está no
         // HTML. Não há o que avisar a quem visita.
         if (error || !data || data.length === 0) return;
 
-        // O primeiro é o grande. Se nenhum estiver marcado como
-        // destaque, o primeiro da ordem assume o lugar — a seção tem um
-        // buraco em forma de vídeo grande, e alguém precisa ocupá-lo.
+        // O primeiro da ordem é o grande, e ponto.
+        //
+        // Havia uma coluna "destaque" e um botão para marcá-la. O Igor
+        // olhou e disse que não entendeu para que servia — e ele tinha
+        // razão: eram dois jeitos de dizer a mesma coisa, a ordem e a
+        // marca, e quem editasse um sem o outro veria a página discordar
+        // da tela. Agora as setas de ordem decidem tudo, e "o primeiro
+        // aparece grande" é uma frase que se explica sozinha.
         const [primeiro, ...resto] = data;
 
         const novoDestaque = montarVideo(primeiro, 'Vídeo em destaque');

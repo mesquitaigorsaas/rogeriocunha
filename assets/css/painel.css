@@ -215,6 +215,29 @@ body.painel {
 
 .btn.miudo { padding: 6px 11px; font-size: 0.78rem; }
 
+/* O botão confirmando o que acabou de fazer.
+
+   Verde, e não o vinho do site: é o único lugar onde a cor precisa
+   dizer "deu certo", e vinho aqui seria lido como alerta. Dura pouco
+   mais de dois segundos e volta ao que era. */
+.btn.confirmado,
+.btn.principal.confirmado {
+    background: #2f6b46;
+    border-color: #2f6b46;
+    color: #fff;
+}
+
+/* A fileira de ações no pé de cada ficha, separada dos campos por um
+   fio — para o clique de apagar não encostar no campo de digitar. */
+.ficha-acoes {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--linha);
+}
+
 
 /* ---------------------------------------------------------------------
    A CAIXA DE IMAGEM

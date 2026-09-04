@@ -33,8 +33,9 @@
             <h1>Vídeos</h1>
             <p>
                 Cole o endereço do vídeo no YouTube — o da barra do navegador
-                mesmo, inteiro. O primeiro da lista é o que aparece grande na
-                página inicial.
+                mesmo, inteiro. Ao salvar, ele já vai para o site.
+                <strong>O primeiro da lista é o que aparece grande</strong> na
+                página inicial; use as setas para mudar a ordem.
             </p>
         </div>
 
@@ -55,7 +56,7 @@
         'use strict';
 
         const { banco, exigirEditor, sair, codigoDoYoutube, avisar,
-                proximaOrdem, trocarOrdem } = window.PAINEL;
+                confirmarNoBotao, proximaOrdem, trocarOrdem } = window.PAINEL;
 
         const lista = document.getElementById('lista');
 
@@ -63,6 +64,15 @@
         // quem é o vizinho de cima e o de baixo, e ir ao banco a cada
         // clique para descobrir isso seria uma consulta por seta.
         let videos = [];
+
+        // O cartão em branco de um vídeo que ainda não existe no banco.
+        //
+        // Ele vive só aqui, na tela, até a pessoa colar o endereço e
+        // salvar. Antes eu criava a linha no banco na hora de clicar em
+        // "Adicionar", com um código de mentira dentro — e aí, com o
+        // vídeo indo ao ar assim que é salvo, essa linha vazia apareceria
+        // na página inicial como um quadro quebrado.
+        let rascunho = null;
 
         document.getElementById('botaoSair').addEventListener('click', sair);
 
@@ -72,12 +82,9 @@
         // =============================================================
 
         async function carregar() {
-            // Aqui o editor vê tudo, inclusive o que está fora do ar —
-            // ao contrário da página inicial, que só mostra publicado.
             const { data, error } = await banco
                 .from('videos')
                 .select('*')
-                .order('destaque', { ascending: false })
                 .order('ordem', { ascending: true });
 
             if (error) {
@@ -97,7 +104,7 @@
         function desenhar() {
             lista.replaceChildren();
 
-            if (videos.length === 0) {
+            if (videos.length === 0 && !rascunho) {
                 const vazio = document.createElement('div');
                 vazio.className = 'vazio';
                 vazio.innerHTML = '<strong>Nenhum vídeo ainda</strong>';
@@ -107,11 +114,15 @@
             }
 
             videos.forEach((video, posicao) => lista.appendChild(montarFicha(video, posicao)));
+
+            if (rascunho) lista.appendChild(montarFicha(rascunho, -1));
         }
 
         function montarFicha(video, posicao) {
+            const novo = posicao === -1;
+
             const ficha = document.createElement('div');
-            ficha.className = 'ficha' + (video.publicado ? '' : ' rascunho');
+            ficha.className = 'ficha' + (novo ? ' rascunho' : '');
 
             // ---- topo: qual é, e onde está na fila ----
             const topo = document.createElement('div');
@@ -120,32 +131,42 @@
             const identidade = document.createElement('div');
             const nome = document.createElement('div');
             nome.className = 'ficha-titulo';
-            nome.textContent = video.titulo || 'Vídeo sem título';
+            nome.textContent = novo
+                ? 'Vídeo novo'
+                : (video.titulo || 'Vídeo sem título');
+
             const situacao = document.createElement('span');
             situacao.className = 'ficha-sub';
-            situacao.textContent = [
-                video.destaque ? 'Em destaque' : `${posicao + 1}º da fileira`,
-                video.publicado ? 'no ar' : 'fora do ar'
-            ].join(' · ');
+            // O lugar na fila é a única informação de estado que sobrou,
+            // e é a que importa: ela diz qual vai aparecer grande.
+            situacao.textContent = novo
+                ? 'ainda não salvo'
+                : (posicao === 0 ? 'o primeiro — aparece grande no site' : `${posicao + 1}º da fileira`);
+
             identidade.append(nome, situacao);
+            topo.appendChild(identidade);
 
-            const setas = document.createElement('div');
-            setas.className = 'ordem-setas';
-            const subir = document.createElement('button');
-            subir.type = 'button';
-            subir.textContent = '↑';
-            subir.title = 'Subir na lista';
-            subir.disabled = posicao === 0;
-            subir.addEventListener('click', () => mover(posicao, posicao - 1));
-            const descer = document.createElement('button');
-            descer.type = 'button';
-            descer.textContent = '↓';
-            descer.title = 'Descer na lista';
-            descer.disabled = posicao === videos.length - 1;
-            descer.addEventListener('click', () => mover(posicao, posicao + 1));
-            setas.append(subir, descer);
+            if (!novo) {
+                const setas = document.createElement('div');
+                setas.className = 'ordem-setas';
 
-            topo.append(identidade, setas);
+                const subir = document.createElement('button');
+                subir.type = 'button';
+                subir.textContent = '↑';
+                subir.title = 'Subir na lista';
+                subir.disabled = posicao === 0;
+                subir.addEventListener('click', () => mover(posicao, posicao - 1));
+
+                const descer = document.createElement('button');
+                descer.type = 'button';
+                descer.textContent = '↓';
+                descer.title = 'Descer na lista';
+                descer.disabled = posicao === videos.length - 1;
+                descer.addEventListener('click', () => mover(posicao, posicao + 1));
+
+                setas.append(subir, descer);
+                topo.appendChild(setas);
+            }
 
             // ---- corpo: prévia à esquerda, campos à direita ----
             const corpo = document.createElement('div');
@@ -173,42 +194,36 @@
                 'Uma linha curta dizendo do que se trata.');
 
             campos.append(campoEndereco, campoTitulo, campoLegenda);
-
             corpo.append(previa, campos);
 
             // ---- ações ----
             const acoes = document.createElement('div');
-            acoes.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:1px solid var(--linha)';
+            acoes.className = 'ficha-acoes';
 
             const salvar = document.createElement('button');
             salvar.type = 'button';
             salvar.className = 'btn principal';
-            salvar.textContent = 'Salvar vídeo';
-            salvar.addEventListener('click', () => gravar(video, {
+            salvar.textContent = novo ? 'Salvar e publicar' : 'Salvar vídeo';
+            salvar.addEventListener('click', () => gravar(video, novo, {
                 endereco: campoEndereco.querySelector('input').value,
                 titulo: campoTitulo.querySelector('input').value,
                 legenda: campoLegenda.querySelector('input').value
             }, salvar));
 
-            const destacar = document.createElement('button');
-            destacar.type = 'button';
-            destacar.className = 'btn';
-            destacar.textContent = video.destaque ? 'Tirar do destaque' : 'Pôr em destaque';
-            destacar.addEventListener('click', () => alternarDestaque(video));
-
-            const publicar = document.createElement('button');
-            publicar.type = 'button';
-            publicar.className = 'btn';
-            publicar.textContent = video.publicado ? 'Tirar do ar' : 'Pôr no ar';
-            publicar.addEventListener('click', () => alternar(video, 'publicado'));
-
             const apagar = document.createElement('button');
             apagar.type = 'button';
             apagar.className = 'btn perigo';
-            apagar.textContent = 'Apagar';
-            apagar.addEventListener('click', () => remover(video));
+            apagar.textContent = novo ? 'Descartar' : 'Apagar';
+            apagar.addEventListener('click', () => {
+                if (novo) {
+                    rascunho = null;
+                    desenhar();
+                    return;
+                }
+                remover(video);
+            });
 
-            acoes.append(salvar, destacar, publicar, apagar);
+            acoes.append(salvar, apagar);
 
             ficha.append(topo, corpo, acoes);
             return ficha;
@@ -256,7 +271,7 @@
         // GRAVAR
         // =============================================================
 
-        async function gravar(video, valores, botao) {
+        async function gravar(video, novo, valores, botao) {
             const codigo = codigoDoYoutube(valores.endereco);
 
             // Sem código não há vídeo. Melhor recusar aqui, com o motivo
@@ -269,11 +284,17 @@
 
             botao.disabled = true;
 
-            const { error } = await banco.from('videos').update({
+            const campos = {
                 codigo_youtube: codigo,
                 titulo: valores.titulo.trim(),
-                legenda: valores.legenda.trim()
-            }).eq('id', video.id);
+                legenda: valores.legenda.trim(),
+                // Salvou, está no ar. Sem passo a mais para lembrar.
+                publicado: true
+            };
+
+            const { error } = novo
+                ? await banco.from('videos').insert({ ...campos, ordem: proximaOrdem(videos) })
+                : await banco.from('videos').update(campos).eq('id', video.id);
 
             botao.disabled = false;
 
@@ -282,82 +303,33 @@
                 return;
             }
 
-            avisar('Vídeo salvo.');
+            // Duas confirmações, e não é exagero: o recado no rodapé some
+            // em segundos e pode passar batido — foi o que aconteceu na
+            // primeira versão desta tela. O botão que ele acabou de
+            // clicar é onde o olho dele já está.
+            confirmarNoBotao(botao, 'Vídeo salvo ✓');
+            avisar(novo ? 'Vídeo salvo e publicado no site.' : 'Vídeo salvo.');
+
+            if (novo) rascunho = null;
             carregar();
         }
 
-        async function criar() {
-            const { error } = await banco.from('videos').insert({
-                // Nasce fora do ar, e vazio. Assim ele monta o vídeo com
-                // calma e só põe no ar quando estiver do jeito que quer —
-                // em vez de a página inicial mostrar um quadro pela metade
-                // enquanto ele digita.
-                codigo_youtube: 'a-preencher',
-                titulo: '',
-                legenda: '',
-                publicado: false,
-                destaque: videos.length === 0,
-                ordem: proximaOrdem(videos)
-            });
-
-            if (error) {
-                avisar('Não consegui criar: ' + error.message, 'erro');
+        function criar() {
+            if (rascunho) {
+                avisar('Termine o vídeo que você começou antes de adicionar outro.', 'erro');
                 return;
             }
 
-            await carregar();
+            rascunho = { codigo_youtube: '', titulo: '', legenda: '' };
+            desenhar();
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }
-
-        async function alternar(video, coluna) {
-            const { error } = await banco.from('videos')
-                .update({ [coluna]: !video[coluna] })
-                .eq('id', video.id);
-
-            if (error) {
-                avisar('Não consegui mudar: ' + error.message, 'erro');
-                return;
-            }
-
-            carregar();
-        }
-
-        /**
-         * Só um vídeo fica em destaque.
-         *
-         * Sem isto, dois destaques dariam dois vídeos grandes empilhados
-         * na página inicial — e o segundo empurraria a fileira para
-         * baixo sem ninguém entender por quê.
-         */
-        async function alternarDestaque(video) {
-            if (video.destaque) {
-                await alternar(video, 'destaque');
-                return;
-            }
-
-            const antigo = videos.find((v) => v.destaque && v.id !== video.id);
-
-            if (antigo) {
-                await banco.from('videos').update({ destaque: false }).eq('id', antigo.id);
-            }
-
-            const { error } = await banco.from('videos')
-                .update({ destaque: true })
-                .eq('id', video.id);
-
-            if (error) {
-                avisar('Não consegui destacar: ' + error.message, 'erro');
-                return;
-            }
-
-            avisar('Este é o vídeo grande da página inicial agora.');
-            carregar();
         }
 
         async function mover(de, para) {
             try {
                 await trocarOrdem('videos', videos[de], videos[para]);
                 await carregar();
+                avisar('Ordem alterada.');
             } catch (erro) {
                 avisar(erro.message, 'erro');
             }

@@ -202,12 +202,46 @@ window.PAINEL = (function () {
         document.body.appendChild(recado);
         recadoAberto = recado;
 
-        // Erro fica mais tempo na tela: quem errou precisa ler o que
-        // errou, e quem acertou já viu a mudança acontecer.
+        // Quatro segundos, e não os 2,6 de antes.
+        //
+        // Na primeira versão desta tela o Igor salvou um vídeo e disse
+        // que não veio aviso nenhum. Vinha — no rodapé, por dois
+        // segundos e meio, enquanto o olho dele estava no botão que
+        // acabara de clicar, no meio da página. Aviso que ninguém vê é
+        // o mesmo que aviso que não existe.
+        //
+        // Erro fica mais ainda: quem errou precisa ler o que errou.
         setTimeout(() => {
             if (recado === recadoAberto) recadoAberto = null;
             recado.remove();
-        }, tipo === 'erro' ? 6000 : 2600);
+        }, tipo === 'erro' ? 7000 : 4000);
+    }
+
+    /**
+     * A confirmação no próprio botão que a pessoa clicou.
+     *
+     * É o par do recado do rodapé, e resolve o que ele não resolve: o
+     * olho de quem acabou de clicar está no botão, não no pé da página.
+     * Aqui a resposta aparece exatamente onde ela está olhando.
+     *
+     * Guarda o texto original para devolver depois — inclusive se ela
+     * clicar de novo antes de terminar, caso em que o "Salvo ✓" não pode
+     * virar o texto permanente do botão.
+     */
+    function confirmarNoBotao(botao, texto) {
+        if (botao.dataset.textoOriginal === undefined) {
+            botao.dataset.textoOriginal = botao.textContent;
+        }
+
+        clearTimeout(Number(botao.dataset.relogio));
+
+        botao.textContent = texto;
+        botao.classList.add('confirmado');
+
+        botao.dataset.relogio = String(setTimeout(() => {
+            botao.textContent = botao.dataset.textoOriginal;
+            botao.classList.remove('confirmado');
+        }, 2400));
     }
 
 
@@ -253,6 +287,7 @@ window.PAINEL = (function () {
         subirImagem,
         codigoDoYoutube,
         avisar,
+        confirmarNoBotao,
         proximaOrdem,
         trocarOrdem
     };
