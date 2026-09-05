@@ -56,6 +56,50 @@
             white-space: pre-line;
         }
 
+        /* A moldura inteira é o botão de escolher a imagem. Antes havia
+           um botão lá embaixo, junto com Salvar e Apagar — longe do
+           lugar onde a imagem aparece, que é onde a mão vai. */
+        .escolher-imagem {
+            position: relative;
+            display: block;
+            cursor: pointer;
+        }
+
+        .escolher-imagem .previa-dica {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26, 26, 26, 0.78);
+            color: #fff;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 9px 10px;
+            opacity: 0;
+            transition: opacity 0.18s;
+        }
+
+        /* Com imagem, a dica só aparece quando o mouse chega — a foto é
+           o que importa ver. Sem imagem, ela fica sempre visível, porque
+           aí a moldura vazia precisa dizer para que serve. */
+        .escolher-imagem:hover .previa-dica,
+        .escolher-imagem.vazia .previa-dica {
+            opacity: 1;
+        }
+
+        .escolher-imagem.vazia {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* No celular não existe passar o mouse: a dica fica sempre à
+           mostra, senão a moldura vira uma foto que não se explica. */
+        @media (hover: none) {
+            .escolher-imagem .previa-dica { opacity: 1; }
+        }
+
         .selo-autor {
             display: inline-block;
             background: #1a1a1a;
@@ -227,14 +271,42 @@
             const corpo = document.createElement('div');
             corpo.className = 'ficha-corpo';
 
-            // A imagem do texto, com a moldura no formato em que ela
+            // A imagem do texto, na moldura com o formato em que ela
             // aparece no cartão da página inicial.
-            const moldura = document.createElement('div');
-            moldura.className = 'previa-foto';
+            //
+            // A moldura é uma etiqueta com a entrada de arquivo dentro:
+            // clicar em qualquer ponto dela abre a escolha da imagem. O
+            // botão ficava lá embaixo, entre Salvar e Apagar — longe do
+            // lugar onde a imagem está, que é onde a mão vai.
+            const moldura = document.createElement('label');
+            moldura.className = 'previa-foto escolher-imagem';
 
-            // Se ele já escolheu um arquivo e ainda não salvou, a moldura
-            // mostra esse arquivo, e não o que está no banco.
+            const entradaImagem = document.createElement('input');
+            entradaImagem.type = 'file';
+            entradaImagem.className = 'entrada-arquivo';
+            entradaImagem.accept = 'image/*';
+
+            const dicaImagem = document.createElement('span');
+            dicaImagem.className = 'previa-dica';
+
+            moldura.append(entradaImagem, dicaImagem);
             mostrarNaMoldura(moldura, texto.imagem_url);
+
+            entradaImagem.addEventListener('change', (e) => {
+                const arquivo = e.target.files[0];
+                if (!arquivo) return;
+
+                // A imagem aparece na moldura na hora, antes de a
+                // internet responder. Quem acabou de escolher um arquivo
+                // quer ver se pegou a foto certa.
+                mostrarNaMoldura(moldura, URL.createObjectURL(arquivo));
+
+                // Sobe na hora, mesmo num rascunho que ainda não existe
+                // no banco. Ele pode estar escrevendo do celular e fechar
+                // o navegador antes de salvar; se o arquivo só subisse no
+                // salvar, a foto se perderia com ele.
+                enviarImagem(texto, arquivo, moldura, novo);
+            });
 
             const campos = document.createElement('div');
 
@@ -300,37 +372,6 @@
                 publicar.addEventListener('click', () => trocarPublicacao(texto, publicar));
                 acoes.appendChild(publicar);
             }
-
-            const trocarImagem = document.createElement('label');
-            trocarImagem.className = 'btn';
-            trocarImagem.textContent = texto.imagem_url ? 'Trocar a imagem' : 'Escolher imagem';
-            const entradaImagem = document.createElement('input');
-            entradaImagem.type = 'file';
-            entradaImagem.className = 'entrada-arquivo';
-            entradaImagem.accept = 'image/*';
-            entradaImagem.addEventListener('change', (e) => {
-                const arquivo = e.target.files[0];
-                if (!arquivo) return;
-
-                // A imagem aparece na moldura na hora, antes de a
-                // internet responder. Quem acabou de escolher um arquivo
-                // quer ver se pegou a foto certa.
-                mostrarNaMoldura(moldura, URL.createObjectURL(arquivo));
-                trocarImagem.firstChild.textContent = 'Trocar a imagem';
-
-                // Sobe na hora, mesmo num rascunho que ainda não existe
-                // no banco. Ele pode estar escrevendo do celular e fechar
-                // o navegador antes de salvar; se o arquivo só subisse no
-                // salvar, a foto se perderia com ele.
-                //
-                // O preço é um arquivo solto no depósito quando ele
-                // escolhe uma foto e desiste do texto. Uma imagem de 300
-                // KB esquecida é barata perto de perder a foto que ele
-                // escolheu no celular na rua.
-                enviarImagem(texto, arquivo, moldura, novo);
-            });
-            trocarImagem.appendChild(entradaImagem);
-            acoes.appendChild(trocarImagem);
 
             if (!novo) {
                 const recados = comentariosPorTexto.get(texto.id) || [];
@@ -602,22 +643,31 @@
         // MIUDEZAS
         // =============================================================
 
-        /** Põe a imagem na moldura, ou o aviso de que não há nenhuma. */
+        /**
+         * Põe a imagem na moldura, ou deixa a moldura vazia com o convite
+         * para escolher uma.
+         *
+         * Troca só a imagem: a entrada de arquivo e a dica moram na
+         * mesma etiqueta e precisam sobreviver: limpar tudo tiraria o
+         * campo que faz a moldura ser clicável.
+         */
         function mostrarNaMoldura(moldura, endereco) {
-            moldura.replaceChildren();
+            moldura.querySelector('img')?.remove();
+
+            const dica = moldura.querySelector('.previa-dica');
+            moldura.classList.toggle('vazia', !endereco);
 
             if (!endereco) {
-                const semFoto = document.createElement('span');
-                semFoto.className = 'dica';
-                semFoto.textContent = 'Sem imagem';
-                moldura.appendChild(semFoto);
+                if (dica) dica.textContent = 'Clique para escolher a imagem';
                 return;
             }
+
+            if (dica) dica.textContent = 'Clique para trocar a imagem';
 
             const img = document.createElement('img');
             img.src = endereco;
             img.alt = '';
-            moldura.appendChild(img);
+            moldura.insertBefore(img, moldura.firstChild);
         }
 
         function criarCampo(rotulo, valor, dica, tipo) {
