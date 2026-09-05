@@ -410,11 +410,24 @@
             botao.disabled = false;
 
             if (error) {
+                // "Failed to fetch" não quer dizer que não salvou: quer
+                // dizer que a resposta não voltou. O banco pode ter
+                // gravado e a confirmação ter se perdido no caminho — foi
+                // o que aconteceu com o Rogério, que viu "não consegui
+                // salvar" com o livro já salvo do outro lado.
+                //
+                // Dizer "não salvou" nesse caso é mentira, e a mentira
+                // custa caro: ele reescreve tudo achando que perdeu.
+                const semResposta = /failed to fetch|networkerror|load failed/i.test(error.message);
+
                 // O título é único no banco: dois livros com o mesmo nome
                 // dariam dois cartões iguais na vitrine.
                 const recado = /duplicate|unique/i.test(error.message)
                     ? 'Já existe um livro com esse título.'
-                    : 'Não consegui salvar: ' + error.message;
+                    : semResposta
+                        ? 'A resposta do banco não chegou. Pode ter salvado — recarregue a página para conferir antes de escrever de novo.'
+                        : 'Não consegui salvar: ' + error.message;
+
                 avisar(recado, 'erro');
                 return;
             }

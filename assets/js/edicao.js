@@ -126,11 +126,28 @@
         // Ter conta não basta: é preciso estar na lista de editores. A
         // pergunta é feita ao banco, e não aqui — resposta vinda do
         // navegador qualquer um forja.
-        const { data } = await banco
+        const { data, error } = await banco
             .from('editores')
             .select('nome')
             .eq('id', session.user.id)
             .maybeSingle();
+
+        // A pergunta não chegou ao banco: a internet oscilou, o celular
+        // trocou de rede, o projeto demorou a responder.
+        //
+        // Antes o erro era ignorado e a resposta virava "não é editor":
+        // os botões de editar sumiam do site sem explicação, e ele
+        // achava que tinha sido deslogado do nada.
+        //
+        // Agora, quem tem sessão aberta continua vendo os botões. Não é
+        // brecha: quem decide o que pode ser gravado é a regra do banco,
+        // e não esta tela. Se ele não for editor, a gravação é recusada
+        // lá — do mesmo jeito que seria se os botões nunca tivessem
+        // aparecido.
+        if (error) {
+            console.warn('Não consegui confirmar o editor agora:', error.message);
+            return true;
+        }
 
         return Boolean(data);
     }
