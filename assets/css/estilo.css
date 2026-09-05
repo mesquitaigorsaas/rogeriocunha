@@ -625,6 +625,12 @@ a {
     grid-template-columns: 0.8fr 1.2fr;
     gap: 68px;
     align-items: center;
+
+    /* O respiro até a fileira de baixo. Morava num style no HTML, e o
+       JavaScript troca este bloco inteiro ao montar o destaque que vem
+       do banco — o espaço ia junto, e a fileira subia até encostar na
+       capa grande. Aqui ele sobrevive à troca. */
+    margin-bottom: 90px;
 }
 
 @media (max-width: 900px) {

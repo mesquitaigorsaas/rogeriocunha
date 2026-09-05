@@ -393,6 +393,12 @@
                 ficha: valores.ficha.trim(),
                 editora: valores.editora.trim(),
                 capa_url: valores.capa_url || null,
+
+                // Sem capa não há corte que faça sentido: volta para o
+                // meio, para a próxima capa não nascer com o
+                // enquadramento da anterior.
+                enquadramento: valores.capa_url ? (valores.enquadramento || '50% center') : '50% center',
+
                 preco: precoLido(valores.preco),
                 publicado: true
             };
