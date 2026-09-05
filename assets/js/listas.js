@@ -451,14 +451,30 @@
      * site — e este não pode.
      */
     function criarBotaoDosLivros() {
-        const secao = document.getElementById('livros') || document.querySelector('.grade-livros');
-        if (!secao || document.getElementById('editarLivros')) return;
+        if (document.getElementById('editarLivros')) return;
 
-        const acao = secao.querySelector('.acao-central')
+        const secao = document.getElementById('livros');
+        const grade = document.querySelector('.grade-livros');
+        if (!secao && !grade) return;
+
+        // Na página inicial o botão mora dentro da seção de livros, ao
+        // lado do "Ver todos os livros" que já está lá.
+        //
+        // Na página de livros não existe essa seção, e o alvo passa a ser
+        // o VIZINHO da grade — nunca a grade em si. montarLivros() faz
+        // grade.replaceChildren() para trocar os cartões pelos do banco,
+        // e o botão colocado lá dentro era apagado junto. Como as duas
+        // coisas são assíncronas, vencia quem terminasse por último: o
+        // botão aparecia num carregamento e sumia no seguinte.
+        const dono = secao
+            ? (secao.querySelector('.container') || secao)
+            : grade.parentElement;
+
+        const acao = dono.querySelector(':scope > .acao-central')
             || (function () {
                 const nova = document.createElement('div');
                 nova.className = 'acao-central';
-                (secao.querySelector('.container') || secao).appendChild(nova);
+                dono.appendChild(nova);
                 return nova;
             })();
 
