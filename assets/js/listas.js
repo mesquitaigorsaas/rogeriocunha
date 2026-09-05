@@ -213,6 +213,13 @@
             img.src = livro.capa_url;
             img.alt = 'Capa de ' + livro.titulo;
             img.loading = 'lazy';
+
+            // Que pedaço da arte aparece. A arte da gráfica vem aberta,
+            // com contracapa e lombada; ele escolhe o corte no painel e
+            // é aqui que essa escolha vale. Sem valor gravado, fica no
+            // meio — que é o que a moldura já fazia antes.
+            img.style.objectPosition = livro.enquadramento || '50% center';
+
             moldura.appendChild(img);
             return moldura;
         }
@@ -373,7 +380,7 @@
 
         const { data, error } = await window.BANCO
             .from('livros')
-            .select('id, titulo, subtitulo, sinopse, capa_url, ficha, editora, preco, ordem')
+            .select('id, titulo, subtitulo, sinopse, capa_url, enquadramento, ficha, editora, preco, ordem')
             .eq('publicado', true)
             .order('ordem', { ascending: true });
 

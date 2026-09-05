@@ -103,6 +103,13 @@
             if (rascunho) lista.appendChild(montarFicha(rascunho, -1));
         }
 
+
+        /** "82% center" -> 82. Sem número reconhecível, fica no meio. */
+        function porcentagemDe(enquadramento) {
+            const achou = String(enquadramento || '').match(/(\d+)%/);
+            return achou ? Number(achou[1]) : 50;
+        }
+
         function montarFicha(livro, posicao) {
             const novo = posicao === -1;
 
@@ -155,26 +162,82 @@
 
             const ladoCapa = document.createElement('div');
 
+            // "capa" deixa a moldura em pé, na proporção de um livro: é
+            // assim que a capa vai aparecer no site, e a moldura quadrada
+            // dava outra ideia do enquadramento.
             const caixaCapa = document.createElement('label');
-            caixaCapa.className = 'caixa-imagem';
+            caixaCapa.className = 'caixa-imagem capa';
 
             const entradaCapa = document.createElement('input');
             entradaCapa.type = 'file';
             entradaCapa.className = 'entrada-arquivo';
             entradaCapa.accept = 'image/*';
 
-            const capaAtual = { url: livro.capa_url || '' };
+            const capaAtual = {
+                url: livro.capa_url || '',
+                corte: livro.enquadramento || '50% center'
+            };
+
+            // A barra que escolhe o pedaço da arte que aparece na
+            // moldura. Fica escondida enquanto não há capa: barra sem
+            // imagem não regula nada.
+            const corte = document.createElement('div');
+            corte.className = 'corte-capa';
+            const barra = document.createElement('input');
+            barra.type = 'range';
+            barra.min = '0';
+            barra.max = '100';
+            barra.step = '1';
+            barra.value = String(porcentagemDe(capaAtual.corte));
+            const dicaCorte = document.createElement('p');
+            dicaCorte.className = 'dica';
+            dicaCorte.textContent = 'Arraste para escolher a parte da arte que aparece. Na arte aberta da gráfica, a capa da frente costuma ficar à direita.';
+            corte.append(barra, dicaCorte);
+
+            barra.addEventListener('input', () => {
+                capaAtual.corte = `${barra.value}% center`;
+                const img = caixaCapa.querySelector('img');
+                if (img) img.style.objectPosition = capaAtual.corte;
+            });
 
             function desenharCapa() {
                 caixaCapa.replaceChildren(entradaCapa);
-                if (capaAtual.url) {
-                    const img = document.createElement('img');
-                    img.src = capaAtual.url;
-                    img.alt = '';
-                    caixaCapa.appendChild(img);
-                } else {
+
+                if (!capaAtual.url) {
                     caixaCapa.append('Toque para escolher a capa');
+                    corte.hidden = true;
+                    return;
                 }
+
+                const img = document.createElement('img');
+                img.src = capaAtual.url;
+                img.alt = '';
+                img.style.objectPosition = capaAtual.corte;
+                caixaCapa.appendChild(img);
+
+                // O x que tira a capa escolhida por engano. Dentro da
+                // moldura, no canto: é dela que ele fala, e não do livro.
+                const tirar = document.createElement('button');
+                tirar.type = 'button';
+                tirar.className = 'tirar-capa';
+                tirar.textContent = '×';
+                tirar.title = 'Tirar esta capa';
+                tirar.addEventListener('click', (e) => {
+                    // A moldura inteira é uma etiqueta que abre o
+                    // seletor de arquivo. Sem isto, tirar a capa abriria
+                    // a janela de escolher outra no mesmo clique.
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    capaAtual.url = '';
+                    capaAtual.corte = '50% center';
+                    barra.value = '50';
+                    desenharCapa();
+                    avisar('Capa tirada. Clique em Salvar para valer.');
+                });
+                caixaCapa.appendChild(tirar);
+
+                corte.hidden = false;
             }
             desenharCapa();
 
@@ -188,7 +251,7 @@
                 try {
                     capaAtual.url = await subirImagem(arquivo, 'capas');
                     desenharCapa();
-                    avisar('Capa enviada. Clique em Salvar para valer.');
+                    avisar('Capa enviada. Ajuste o corte e clique em Salvar.');
                 } catch (erro) {
                     desenharCapa();
                     avisar(erro.message, 'erro');
@@ -197,9 +260,9 @@
 
             const dicaCapa = document.createElement('p');
             dicaCapa.className = 'dica';
-            dicaCapa.textContent = 'A capa da frente, em pé. A arte fechada da gráfica não serve: ela traz orelha e contracapa na mesma imagem.';
+            dicaCapa.textContent = 'A moldura mostra a capa do jeito que ela aparece no site: em pé.';
 
-            ladoCapa.append(caixaCapa, dicaCapa);
+            ladoCapa.append(caixaCapa, corte, dicaCapa);
 
             const campos = document.createElement('div');
 
@@ -228,6 +291,7 @@
             salvar.textContent = novo ? 'Salvar e publicar' : 'Salvar livro';
             salvar.addEventListener('click', () => gravar(livro, novo, {
                 capa_url: capaAtual.url,
+                enquadramento: capaAtual.corte,
                 titulo: valor(cTitulo),
                 subtitulo: valor(cSubtitulo),
                 sinopse: valor(cSinopse),
