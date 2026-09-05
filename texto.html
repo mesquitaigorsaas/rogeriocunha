@@ -125,55 +125,11 @@
                      ===================================================== -->
                 <section class="comentarios">
                     <h2>Comentários</h2>
-                    <p class="explicativo">
-                        Os comentários passam pela leitura do autor antes de aparecer.
-                    </p>
 
-                    <div class="comentario">
-                        <div class="inicial">M</div>
-                        <div>
-                            <div class="comentario-cabeca">
-                                <strong>Marina Alvarenga</strong>
-                                <time>13 de agosto</time>
-                            </div>
-                            <p>
-                                A parte das três perguntas me pegou. Trabalho com
-                                mediação há doze anos e nunca tinha visto assim — a
-                                gente realmente só discute a terceira.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="comentario resposta-autor">
-                        <div class="inicial">RC</div>
-                        <div>
-                            <div class="comentario-cabeca">
-                                <strong>Rogério Cunha</strong>
-                                <span class="selo-autor">Autor</span>
-                                <time>13 de agosto</time>
-                            </div>
-                            <p>
-                                Obrigado, Marina. Na mediação isso fica ainda mais
-                                visível: quando as duas primeiras são bem feitas, a
-                                terceira quase se resolve sozinha.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="comentario">
-                        <div class="inicial">J</div>
-                        <div>
-                            <div class="comentario-cabeca">
-                                <strong>José Renato</strong>
-                                <time>14 de agosto</time>
-                            </div>
-                            <p>
-                                Li duas vezes. A frase sobre a leitura ser a atividade
-                                mais lenta que restou vai ficar comigo por uns dias.
-                                Já encomendei o livro.
-                            </p>
-                        </div>
-                    </div>
+                    <!-- Os comentários entram publicados, sem esperar
+                         aprovação. Quem enche isto é comentarios.js, com
+                         o que estiver gravado para este texto. -->
+                    <div id="listaComentarios"></div>
 
                     <form class="forma-comentario" id="formaComentario">
                         <h3>Deixe seu comentário</h3>
@@ -223,22 +179,6 @@
         </div>
     </footer>
 
-    <script>
-        // Prévia: mostra o caminho que o comentário vai seguir de verdade,
-        // sem gravar nada ainda.
-        document.getElementById('formaComentario').addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const forma = e.target;
-            forma.innerHTML = `
-                <h3>Comentário enviado</h3>
-                <p style="margin-bottom:0;">
-                    Obrigado. Seu comentário está aguardando a leitura do autor e
-                    aparecerá aqui assim que for aprovado.
-                </p>`;
-        });
-    </script>
-
     <!-- Esta página não falava com o banco: era texto fixo, do começo ao
          fim. Agora ela abre o texto que o endereço pedir, em
          texto.html?id=... — e continua mostrando o que está escrito aqui
@@ -247,6 +187,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/edicao.js"></script>
     <script src="assets/js/artigos.js"></script>
+
+    <!-- Depois de edicao.js, que é quem cria o window.BANCO. -->
+    <script src="assets/js/comentarios.js"></script>
 
     <script src="assets/js/site.js"></script>
 

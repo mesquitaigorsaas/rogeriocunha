@@ -231,17 +231,10 @@
             // aparece no cartão da página inicial.
             const moldura = document.createElement('div');
             moldura.className = 'previa-foto';
-            if (texto.imagem_url) {
-                const img = document.createElement('img');
-                img.src = texto.imagem_url;
-                img.alt = '';
-                moldura.appendChild(img);
-            } else {
-                const semFoto = document.createElement('span');
-                semFoto.className = 'dica';
-                semFoto.textContent = 'Sem imagem';
-                moldura.appendChild(semFoto);
-            }
+
+            // Se ele já escolheu um arquivo e ainda não salvou, a moldura
+            // mostra esse arquivo, e não o que está no banco.
+            mostrarNaMoldura(moldura, texto.imagem_url);
 
             const campos = document.createElement('div');
 
@@ -316,16 +309,25 @@
             entradaImagem.className = 'entrada-arquivo';
             entradaImagem.accept = 'image/*';
             entradaImagem.addEventListener('change', (e) => {
-                if (!e.target.files[0]) return;
-                if (novo) {
-                    // Sem linha no banco não há onde guardar o endereço
-                    // da imagem. Em vez de subir um arquivo que ficaria
-                    // órfão no depósito, avisa o que falta.
-                    avisar('Salve o rascunho primeiro, depois escolha a imagem.', 'erro');
-                    e.target.value = '';
-                    return;
-                }
-                enviarImagem(texto, e.target.files[0]);
+                const arquivo = e.target.files[0];
+                if (!arquivo) return;
+
+                // A imagem aparece na moldura na hora, antes de a
+                // internet responder. Quem acabou de escolher um arquivo
+                // quer ver se pegou a foto certa.
+                mostrarNaMoldura(moldura, URL.createObjectURL(arquivo));
+                trocarImagem.firstChild.textContent = 'Trocar a imagem';
+
+                // Sobe na hora, mesmo num rascunho que ainda não existe
+                // no banco. Ele pode estar escrevendo do celular e fechar
+                // o navegador antes de salvar; se o arquivo só subisse no
+                // salvar, a foto se perderia com ele.
+                //
+                // O preço é um arquivo solto no depósito quando ele
+                // escolhe uma foto e desiste do texto. Uma imagem de 300
+                // KB esquecida é barata perto de perder a foto que ele
+                // escolheu no celular na rua.
+                enviarImagem(texto, arquivo, moldura, novo);
             });
             trocarImagem.appendChild(entradaImagem);
             acoes.appendChild(trocarImagem);
@@ -485,8 +487,13 @@
 
             const resposta = novo
                 // Nasce como rascunho: fica guardado e não aparece no
-                // site até ele clicar em publicar.
-                ? await banco.from('artigos').insert({ ...valores, publicado: false })
+                // site até ele clicar em publicar. A imagem já subiu na
+                // hora em que ele a escolheu; aqui só vai o endereço.
+                ? await banco.from('artigos').insert({
+                    ...valores,
+                    imagem_url: texto.imagem_url || null,
+                    publicado: false
+                })
                 : await banco.from('artigos').update(valores).eq('id', texto.id);
 
             botao.disabled = false;
@@ -521,11 +528,20 @@
             carregar();
         }
 
-        async function enviarImagem(texto, arquivo) {
+        async function enviarImagem(texto, arquivo, moldura, novo) {
             avisar('Enviando a imagem...');
 
             try {
                 const url = await subirImagem(arquivo, 'textos');
+
+                // No rascunho ainda não há linha no banco para atualizar.
+                // O endereço fica guardado no cartão e vai junto quando
+                // ele salvar.
+                if (novo) {
+                    texto.imagem_url = url;
+                    avisar('Imagem enviada. Ela entra no texto quando você salvar.');
+                    return;
+                }
 
                 const { error } = await banco.from('artigos')
                     .update({ imagem_url: url })
@@ -533,9 +549,13 @@
 
                 if (error) throw new Error(error.message);
 
+                texto.imagem_url = url;
                 avisar('Imagem no lugar.');
-                carregar();
             } catch (erro) {
+                // A moldura já mostrava a imagem escolhida. Como ela não
+                // subiu, volta para o que está de fato gravado — senão a
+                // tela fica prometendo uma imagem que o site não tem.
+                mostrarNaMoldura(moldura, texto.imagem_url);
                 avisar(erro.message, 'erro');
             }
         }
@@ -581,6 +601,24 @@
         // =============================================================
         // MIUDEZAS
         // =============================================================
+
+        /** Põe a imagem na moldura, ou o aviso de que não há nenhuma. */
+        function mostrarNaMoldura(moldura, endereco) {
+            moldura.replaceChildren();
+
+            if (!endereco) {
+                const semFoto = document.createElement('span');
+                semFoto.className = 'dica';
+                semFoto.textContent = 'Sem imagem';
+                moldura.appendChild(semFoto);
+                return;
+            }
+
+            const img = document.createElement('img');
+            img.src = endereco;
+            img.alt = '';
+            moldura.appendChild(img);
+        }
 
         function criarCampo(rotulo, valor, dica, tipo) {
             const campo = document.createElement('div');
