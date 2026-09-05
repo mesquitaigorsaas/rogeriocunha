@@ -1240,6 +1240,21 @@ a {
 
 .rodape-redes { display: flex; gap: 22px; }
 
+/* A porta de entrada do Rogério, no canto do rodapé.
+
+   Mais apagada que os vizinhos de propósito: ela não é para o
+   visitante, e não deve disputar a atenção com "Livros" e "Textos",
+   que são. Quem procura, acha; quem não procura, não tropeça.
+
+   Não é segurança — segurança é a senha e a lista de editores no
+   banco. É só não pendurar uma placa de "administração" na fachada. */
+.rodape-admin {
+    color: #6f675d !important;
+    font-size: 0.86rem;
+}
+
+.rodape-admin:hover { color: #b9b1a5 !important; }
+
 
 /* =====================================================================
    MODO DE EDIÇÃO
