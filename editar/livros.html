@@ -87,6 +87,22 @@
             desenhar();
         }
 
+        /**
+         * O recado que explica por que o site mostra conteúdo e o painel
+         * não. Some sozinho assim que a primeira linha entra no banco,
+         * porque a tela vazia deixa de ser desenhada.
+         */
+        function explicarExemplos(texto) {
+            const nota = document.createElement('p');
+            nota.style.marginTop = '14px';
+            nota.style.fontSize = '0.86rem';
+            nota.style.lineHeight = '1.55';
+            nota.style.color = '#8a8378';
+            nota.textContent = texto;
+            return nota;
+        }
+
+
         function desenhar() {
             lista.replaceChildren();
 
@@ -95,6 +111,8 @@
                 vazio.className = 'vazio';
                 vazio.innerHTML = '<strong>Nenhum livro ainda</strong>';
                 vazio.append('Clique em "Adicionar livro".');
+                vazio.appendChild(explicarExemplos('Os livros que aparecem no site agora são de exemplo, ' +
+                    'escritos na própria página. O primeiro que você adicionar aqui toma o lugar deles.'));
                 lista.appendChild(vazio);
                 return;
             }

@@ -221,6 +221,22 @@
             desenhar();
         }
 
+        /**
+         * O recado que explica por que o site mostra conteúdo e o painel
+         * não. Some sozinho assim que a primeira linha entra no banco,
+         * porque a tela vazia deixa de ser desenhada.
+         */
+        function explicarExemplos(texto) {
+            const nota = document.createElement('p');
+            nota.style.marginTop = '14px';
+            nota.style.fontSize = '0.86rem';
+            nota.style.lineHeight = '1.55';
+            nota.style.color = '#8a8378';
+            nota.textContent = texto;
+            return nota;
+        }
+
+
         function desenhar() {
             lista.replaceChildren();
 
@@ -231,6 +247,8 @@
                 vazio.className = 'vazio';
                 vazio.innerHTML = '<strong>Nenhum texto ainda</strong>';
                 vazio.append('Clique em "Escrever texto novo" para começar o primeiro.');
+                vazio.appendChild(explicarExemplos('Os textos que aparecem no site agora são de exemplo, ' +
+                    'escritos na própria página. O primeiro que você publicar aqui toma o lugar deles.'));
                 lista.appendChild(vazio);
                 return;
             }
