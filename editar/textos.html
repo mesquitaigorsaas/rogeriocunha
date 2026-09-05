@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar textos — Rogério Cunha</title>
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="stylesheet" href="../assets/css/estilo.css">
+    <link rel="stylesheet" href="../assets/css/painel.css">
+
+    <style>
+        /* Os comentários de um texto, escondidos até ele pedir para ver.
+           Abertos de saída, cada texto com dez comentários viraria uma
+           parede de recados entre um texto e o seguinte, e ele perderia
+           de vista a lista que veio editar. */
+        .comentarios {
+            border-top: 1px solid #e5e0d8;
+            padding-top: 16px;
+            margin-top: 4px;
+        }
+
+        .comentario {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0ece5;
+        }
+
+        .comentario:last-child { border-bottom: none; }
+
+        .comentario-quem {
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .comentario-quando {
+            font-size: 0.82rem;
+            color: #8a8378;
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .comentario-email {
+            font-size: 0.82rem;
+            color: #8a8378;
+            margin-top: 2px;
+        }
+
+        .comentario-texto {
+            margin-top: 6px;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        .selo-autor {
+            display: inline-block;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 3px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="painel">
+
+    <header class="painel-topo">
+        <div class="container">
+            <a href="../index.html" class="marca">
+                <strong>Rogério Cunha</strong>
+                <span>Editar textos</span>
+            </a>
+
+            <div class="painel-acoes">
+                <a href="../index.html#textos" class="btn">Ver o site</a>
+                <button type="button" class="btn" id="botaoSair">Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <div class="painel-cabeca">
+            <h1>Textos recentes</h1>
+            <p>
+                Os textos do caderno. Um texto novo nasce como
+                <strong>rascunho</strong> — fica guardado aqui e não aparece no
+                site até você publicar. Assim dá para escrever em vários dias,
+                sem meio texto no ar.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 26px;">
+            <button type="button" class="btn principal" id="botaoNovo">Escrever texto novo</button>
+        </div>
+
+        <div id="lista"></div>
+
+    </main>
+
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/painel.js"></script>
+
+    <script>
+    (function () {
+        'use strict';
+
+        const { banco, exigirEditor, sair, subirImagem, avisar,
+                confirmarNoBotao } = window.PAINEL;
+
+        const lista = document.getElementById('lista');
+
+        let textos = [];
+
+        // Os comentários de todos os textos, agrupados por texto.
+        //
+        // Vêm numa consulta só, e não uma por texto. São poucos, e uma
+        // consulta por cartão faria vinte pedidos ao banco para desenhar
+        // uma tela que a pessoa talvez nem role até o fim.
+        let comentariosPorTexto = new Map();
+
+        // O texto novo que ainda não existe no banco. Vive só aqui até
+        // ele escrever e salvar — assim uma linha vazia nunca chega ao
+        // banco por engano.
+        let rascunho = null;
+
+        // Quais cartões estão com os comentários abertos. Guardado fora
+        // do desenho porque a lista é redesenhada a cada gravação, e sem
+        // isso a área fecharia sozinha toda vez que ele apagasse um
+        // comentário.
+        const comentariosAbertos = new Set();
+
+        document.getElementById('botaoSair').addEventListener('click', sair);
+        document.getElementById('botaoNovo').addEventListener('click', novoTexto);
+
+
+        // =============================================================
+        // CARREGAR
+        // =============================================================
+
+        async function carregar() {
+            const [respostaTextos, respostaComentarios] = await Promise.all([
+                banco.from('artigos').select('*').order('publicado_em', { ascending: false }),
+                banco.from('comentarios').select('*').order('criado_em', { ascending: true })
+            ]);
+
+            if (respostaTextos.error) {
+                avisar('Não consegui carregar os textos: ' + respostaTextos.error.message, 'erro');
+                return;
+            }
+
+            textos = respostaTextos.data || [];
+
+            // Erro nos comentários não impede editar os textos: a tela
+            // continua servindo, só sem a parte dos recados.
+            comentariosPorTexto = new Map();
+            if (respostaComentarios.error) {
+                avisar('Os textos carregaram, mas os comentários não: ' + respostaComentarios.error.message, 'erro');
+            } else {
+                for (const comentario of respostaComentarios.data || []) {
+                    const doTexto = comentariosPorTexto.get(comentario.artigo_id) || [];
+                    doTexto.push(comentario);
+                    comentariosPorTexto.set(comentario.artigo_id, doTexto);
+                }
+            }
+
+            desenhar();
+        }
+
+        function desenhar() {
+            lista.replaceChildren();
+
+            if (rascunho) lista.appendChild(montarFicha(rascunho, true));
+
+            if (textos.length === 0 && !rascunho) {
+                const vazio = document.createElement('div');
+                vazio.className = 'vazio';
+                vazio.innerHTML = '<strong>Nenhum texto ainda</strong>';
+                vazio.append('Clique em "Escrever texto novo" para começar o primeiro.');
+                lista.appendChild(vazio);
+                return;
+            }
+
+            textos.forEach((texto) => lista.appendChild(montarFicha(texto, false)));
+        }
+
+
+        // =============================================================
+        // O CARTÃO DE UM TEXTO
+        // =============================================================
+
+        function montarFicha(texto, novo) {
+            const ficha = document.createElement('div');
+            ficha.className = 'ficha' + (novo || !texto.publicado ? ' rascunho' : '');
+
+            // ---- topo ----
+            const topo = document.createElement('div');
+            topo.className = 'ficha-topo';
+
+            const identidade = document.createElement('div');
+            const titulo = document.createElement('div');
+            titulo.className = 'ficha-titulo';
+            titulo.textContent = texto.titulo || (novo ? 'Texto novo' : 'Sem título');
+
+            const situacao = document.createElement('span');
+            situacao.className = 'ficha-sub';
+            situacao.textContent = novo
+                ? 'ainda não salvo'
+                : (texto.publicado
+                    ? `no ar desde ${dataEscrita(texto.publicado_em)}`
+                    : 'rascunho — só você vê');
+
+            identidade.append(titulo, situacao);
+            topo.append(identidade);
+
+            // ---- corpo ----
+            const corpo = document.createElement('div');
+            corpo.className = 'ficha-corpo';
+
+            // A imagem do texto, com a moldura no formato em que ela
+            // aparece no cartão da página inicial.
+            const moldura = document.createElement('div');
+            moldura.className = 'previa-foto';
+            if (texto.imagem_url) {
+                const img = document.createElement('img');
+                img.src = texto.imagem_url;
+                img.alt = '';
+                moldura.appendChild(img);
+            } else {
+                const semFoto = document.createElement('span');
+                semFoto.className = 'dica';
+                semFoto.textContent = 'Sem imagem';
+                moldura.appendChild(semFoto);
+            }
+
+            const campos = document.createElement('div');
+
+            const campoTitulo = criarCampo('Título', texto.titulo || '');
+            const campoLinha = criarCampo(
+                'Linha de chamada', texto.linha_fina || '',
+                'A frase que aparece embaixo do título, no cartão da página inicial.'
+            );
+            const campoCategoria = criarCampo(
+                'Assunto', texto.categoria || '',
+                'Sociedade, Comportamento, História... escreva o que quiser.'
+            );
+
+            const campoData = criarCampo('Data do texto', texto.publicado_em || hoje(), null, 'date');
+            campoData.querySelector('.dica-extra')?.remove();
+            const dicaData = document.createElement('p');
+            dicaData.className = 'dica';
+            dicaData.textContent = 'A data que aparece na tela. Pode ser a de quando você escreveu, e não a de hoje.';
+            campoData.appendChild(dicaData);
+
+            const campoCorpo = document.createElement('div');
+            campoCorpo.className = 'campo';
+            const rotuloCorpo = document.createElement('label');
+            rotuloCorpo.textContent = 'O texto';
+            const area = document.createElement('textarea');
+            area.value = texto.corpo || '';
+            area.rows = 14;
+            const dicaCorpo = document.createElement('p');
+            dicaCorpo.className = 'dica';
+            dicaCorpo.textContent = 'Escreva normalmente. Deixe uma linha em branco entre um parágrafo e outro — o site cuida do resto.';
+            campoCorpo.append(rotuloCorpo, area, dicaCorpo);
+
+            campos.append(campoTitulo, campoLinha, campoCategoria, campoData, campoCorpo);
+            corpo.append(moldura, campos);
+
+            // ---- ações ----
+            const acoes = document.createElement('div');
+            acoes.className = 'ficha-acoes';
+
+            const juntarValores = () => ({
+                titulo: campoTitulo.querySelector('input').value.trim(),
+                linha_fina: campoLinha.querySelector('input').value.trim() || null,
+                categoria: campoCategoria.querySelector('input').value.trim() || null,
+                publicado_em: campoData.querySelector('input').value || hoje(),
+                corpo: area.value
+            });
+
+            const salvar = document.createElement('button');
+            salvar.type = 'button';
+            salvar.className = 'btn principal';
+            salvar.textContent = novo ? 'Salvar rascunho' : 'Salvar';
+            salvar.addEventListener('click', () => gravar(texto, juntarValores(), novo, salvar));
+
+            acoes.appendChild(salvar);
+
+            // Publicar e tirar do ar só existem para texto que já está no
+            // banco: não dá para publicar o que ainda não foi salvo.
+            if (!novo) {
+                const publicar = document.createElement('button');
+                publicar.type = 'button';
+                publicar.className = 'btn';
+                publicar.textContent = texto.publicado ? 'Tirar do ar' : 'Publicar no site';
+                publicar.addEventListener('click', () => trocarPublicacao(texto, publicar));
+                acoes.appendChild(publicar);
+            }
+
+            const trocarImagem = document.createElement('label');
+            trocarImagem.className = 'btn';
+            trocarImagem.textContent = texto.imagem_url ? 'Trocar a imagem' : 'Escolher imagem';
+            const entradaImagem = document.createElement('input');
+            entradaImagem.type = 'file';
+            entradaImagem.className = 'entrada-arquivo';
+            entradaImagem.accept = 'image/*';
+            entradaImagem.addEventListener('change', (e) => {
+                if (!e.target.files[0]) return;
+                if (novo) {
+                    // Sem linha no banco não há onde guardar o endereço
+                    // da imagem. Em vez de subir um arquivo que ficaria
+                    // órfão no depósito, avisa o que falta.
+                    avisar('Salve o rascunho primeiro, depois escolha a imagem.', 'erro');
+                    e.target.value = '';
+                    return;
+                }
+                enviarImagem(texto, e.target.files[0]);
+            });
+            trocarImagem.appendChild(entradaImagem);
+            acoes.appendChild(trocarImagem);
+
+            if (!novo) {
+                const recados = comentariosPorTexto.get(texto.id) || [];
+                const verComentarios = document.createElement('button');
+                verComentarios.type = 'button';
+                verComentarios.className = 'btn miudo';
+                verComentarios.textContent = rotuloComentarios(recados.length, comentariosAbertos.has(texto.id));
+                verComentarios.addEventListener('click', () => {
+                    if (comentariosAbertos.has(texto.id)) comentariosAbertos.delete(texto.id);
+                    else comentariosAbertos.add(texto.id);
+                    desenhar();
+                });
+                acoes.appendChild(verComentarios);
+            }
+
+            const apagar = document.createElement('button');
+            apagar.type = 'button';
+            apagar.className = 'btn perigo';
+            apagar.textContent = novo ? 'Descartar' : 'Apagar';
+            apagar.addEventListener('click', () => {
+                if (novo) { rascunho = null; desenhar(); return; }
+                remover(texto);
+            });
+            acoes.appendChild(apagar);
+
+            ficha.append(topo, corpo, acoes);
+
+            if (!novo && comentariosAbertos.has(texto.id)) {
+                ficha.appendChild(montarComentarios(texto));
+            }
+
+            return ficha;
+        }
+
+        function rotuloComentarios(quantos, aberto) {
+            if (quantos === 0) return 'Sem comentários';
+            const contagem = quantos === 1 ? '1 comentário' : `${quantos} comentários`;
+            return (aberto ? 'Fechar ' : 'Ver ') + contagem;
+        }
+
+
+        // =============================================================
+        // OS COMENTÁRIOS DE UM TEXTO
+        //
+        // Entram publicados, sem passar por aprovação — decisão do autor.
+        // O que sustenta essa escolha é o botão de apagar estar aqui, à
+        // mão, para ele tirar em um clique o que não deve ficar.
+        // =============================================================
+
+        function montarComentarios(texto) {
+            const caixa = document.createElement('div');
+            caixa.className = 'comentarios';
+
+            const recados = comentariosPorTexto.get(texto.id) || [];
+
+            if (recados.length === 0) {
+                const vazio = document.createElement('p');
+                vazio.className = 'dica';
+                vazio.textContent = 'Ninguém comentou este texto ainda.';
+                caixa.appendChild(vazio);
+                return caixa;
+            }
+
+            for (const recado of recados) {
+                caixa.appendChild(montarComentario(recado));
+            }
+
+            return caixa;
+        }
+
+        function montarComentario(recado) {
+            const linha = document.createElement('div');
+            linha.className = 'comentario';
+
+            const conteudo = document.createElement('div');
+
+            const quem = document.createElement('div');
+            quem.className = 'comentario-quem';
+            quem.textContent = recado.nome;
+
+            // O selo sai de quem estava logado ao comentar, e não do nome
+            // digitado. É o que separa o autor de alguém que escreveu o
+            // nome dele no formulário.
+            if (recado.autor_id) {
+                const selo = document.createElement('span');
+                selo.className = 'selo-autor';
+                selo.textContent = 'Autor';
+                quem.appendChild(selo);
+            }
+
+            const quando = document.createElement('span');
+            quando.className = 'comentario-quando';
+            quando.textContent = dataEHora(recado.criado_em);
+            quem.appendChild(quando);
+
+            conteudo.appendChild(quem);
+
+            // O e-mail só aparece aqui, para ele responder. A página do
+            // texto nunca mostra, e o banco nem deixa o visitante ler.
+            if (recado.email) {
+                const email = document.createElement('div');
+                email.className = 'comentario-email';
+                email.textContent = recado.email;
+                conteudo.appendChild(email);
+            }
+
+            const corpo = document.createElement('div');
+            corpo.className = 'comentario-texto';
+            corpo.textContent = recado.texto;
+            conteudo.appendChild(corpo);
+
+            const apagar = document.createElement('button');
+            apagar.type = 'button';
+            apagar.className = 'btn perigo miudo';
+            apagar.textContent = 'Apagar';
+            apagar.addEventListener('click', () => removerComentario(recado));
+
+            linha.append(conteudo, apagar);
+            return linha;
+        }
+
+
+        // =============================================================
+        // GRAVAR, PUBLICAR, APAGAR
+        // =============================================================
+
+        function novoTexto() {
+            if (rascunho) {
+                avisar('Termine o texto que já está aberto antes de começar outro.', 'erro');
+                return;
+            }
+
+            rascunho = {
+                titulo: '',
+                linha_fina: '',
+                categoria: '',
+                corpo: '',
+                imagem_url: null,
+                publicado_em: hoje(),
+                publicado: false
+            };
+
+            desenhar();
+            lista.querySelector('input')?.focus();
+        }
+
+        async function gravar(texto, valores, novo, botao) {
+            if (!valores.titulo) {
+                avisar('O texto precisa de um título para ser salvo.', 'erro');
+                return;
+            }
+
+            botao.disabled = true;
+
+            const resposta = novo
+                // Nasce como rascunho: fica guardado e não aparece no
+                // site até ele clicar em publicar.
+                ? await banco.from('artigos').insert({ ...valores, publicado: false })
+                : await banco.from('artigos').update(valores).eq('id', texto.id);
+
+            botao.disabled = false;
+
+            if (resposta.error) {
+                avisar('Não consegui salvar: ' + resposta.error.message, 'erro');
+                return;
+            }
+
+            confirmarNoBotao(botao, 'Salvo ✓');
+            avisar(novo ? 'Rascunho salvo. Publique quando estiver pronto.' : 'Texto salvo.');
+
+            if (novo) rascunho = null;
+            carregar();
+        }
+
+        async function trocarPublicacao(texto, botao) {
+            botao.disabled = true;
+
+            const { error } = await banco.from('artigos')
+                .update({ publicado: !texto.publicado })
+                .eq('id', texto.id);
+
+            botao.disabled = false;
+
+            if (error) {
+                avisar('Não consegui mudar: ' + error.message, 'erro');
+                return;
+            }
+
+            avisar(texto.publicado ? 'Texto fora do ar.' : 'Texto publicado no site.');
+            carregar();
+        }
+
+        async function enviarImagem(texto, arquivo) {
+            avisar('Enviando a imagem...');
+
+            try {
+                const url = await subirImagem(arquivo, 'textos');
+
+                const { error } = await banco.from('artigos')
+                    .update({ imagem_url: url })
+                    .eq('id', texto.id);
+
+                if (error) throw new Error(error.message);
+
+                avisar('Imagem no lugar.');
+                carregar();
+            } catch (erro) {
+                avisar(erro.message, 'erro');
+            }
+        }
+
+        async function remover(texto) {
+            const recados = comentariosPorTexto.get(texto.id) || [];
+
+            // Apagar o texto leva os comentários junto — é o
+            // "on delete cascade" da tabela. Quem vai perder recado de
+            // leitor precisa saber disso antes, e não depois.
+            const aviso = recados.length > 0
+                ? `Apagar "${texto.titulo}"? Os ${recados.length} comentários dos leitores vão junto. Isso não tem como desfazer.`
+                : `Apagar "${texto.titulo}"? Isso não tem como desfazer.`;
+
+            if (!window.confirm(aviso)) return;
+
+            const { error } = await banco.from('artigos').delete().eq('id', texto.id);
+
+            if (error) {
+                avisar('Não consegui apagar: ' + error.message, 'erro');
+                return;
+            }
+
+            avisar('Texto apagado.');
+            carregar();
+        }
+
+        async function removerComentario(recado) {
+            if (!window.confirm(`Apagar o comentário de ${recado.nome}? Isso não tem como desfazer.`)) return;
+
+            const { error } = await banco.from('comentarios').delete().eq('id', recado.id);
+
+            if (error) {
+                avisar('Não consegui apagar: ' + error.message, 'erro');
+                return;
+            }
+
+            avisar('Comentário apagado.');
+            carregar();
+        }
+
+
+        // =============================================================
+        // MIUDEZAS
+        // =============================================================
+
+        function criarCampo(rotulo, valor, dica, tipo) {
+            const campo = document.createElement('div');
+            campo.className = 'campo';
+
+            const label = document.createElement('label');
+            label.textContent = rotulo;
+
+            const input = document.createElement('input');
+            input.type = tipo || 'text';
+            input.value = valor;
+
+            campo.append(label, input);
+
+            if (dica) {
+                const p = document.createElement('p');
+                p.className = 'dica';
+                p.textContent = dica;
+                campo.appendChild(p);
+            }
+
+            return campo;
+        }
+
+        function hoje() {
+            return new Date().toISOString().slice(0, 10);
+        }
+
+        /** "2026-09-03" -> "3 de setembro de 2026" */
+        function dataEscrita(iso) {
+            if (!iso) return '';
+            // O T12:00 evita o dia anterior: uma data pura é lida como
+            // meia-noite em UTC, que no Brasil ainda é o dia de ontem.
+            return new Date(iso + 'T12:00:00').toLocaleDateString('pt-BR', {
+                day: 'numeric', month: 'long', year: 'numeric'
+            });
+        }
+
+        function dataEHora(iso) {
+            if (!iso) return '';
+            return new Date(iso).toLocaleString('pt-BR', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+
+        // =============================================================
+        // ENTRADA
+        // =============================================================
+        (async function () {
+            const editor = await exigirEditor();
+            if (!editor) return;
+            carregar();
+        })();
+    })();
+    </script>
+
+</body>
+</html>

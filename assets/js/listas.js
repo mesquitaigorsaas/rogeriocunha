@@ -465,11 +465,41 @@
         acao.appendChild(botao);
     }
 
+    /**
+     * "Editar textos" nasce embaixo da fileira de textos.
+     *
+     * Como a galeria, a seção não tem botão nenhum para quem visita — os
+     * cartões levam direto ao texto. Então o botão só existe no modo de
+     * edição, e some quando ele sai.
+     *
+     * Os textos são desenhados por artigos.js, e não por este arquivo.
+     * Mesmo assim o botão mora aqui, junto dos outros três: quem for
+     * mexer no jeito de entrar na edição encontra os quatro no mesmo
+     * lugar, em vez de caçar um deles em outro arquivo.
+     */
+    function criarBotaoDosTextos() {
+        const grade = document.querySelector('.grade-textos');
+        if (!grade || document.getElementById('editarTextos')) return;
+
+        const acao = document.createElement('div');
+        acao.className = 'acao-central';
+
+        const botao = document.createElement('a');
+        botao.id = 'editarTextos';
+        botao.className = 'botao contorno';
+        botao.href = 'editar/textos.html';
+        botao.textContent = 'Editar textos';
+
+        acao.appendChild(botao);
+        grade.parentElement.appendChild(acao);
+    }
+
     document.addEventListener('editor-conferido', (e) => {
         if (!e.detail.editor) return;
         trocarBotaoDosVideos();
         criarBotaoDosMomentos();
         criarBotaoDosLivros();
+        criarBotaoDosTextos();
     });
 
 
