@@ -242,6 +242,23 @@
             let py = inicial.y;
             let zoom = entre(Number(momento.zoom) || 1, 1, ZOOM_MAXIMO);
 
+            /* Quanto ele já tentou empurrar num lado que não tem folga,
+               e se a explicação disso está na tela.
+
+               Existem porque arrastar de lado uma foto que não anda de
+               lado não fazia nada — nada mesmo, nem um tremor — e uma
+               foto que não responde é lida como foto que não pode. Ele
+               concluía que a opção não existia, quando ela só estava
+               esperando o zoom.
+
+               Declarados aqui, junto do resto do estado, e não lá
+               embaixo com o arrasto: a dica os lê, e a dica roda assim
+               que a imagem chega. Com a foto em cache isso acontece
+               antes de o arrasto ser montado. */
+            let empurrouX = 0;
+            let empurrouY = 0;
+            let explicando = false;
+
             /* A barra precisa dizer o nome dela. Sozinha embaixo de um
                rótulo escrito "Enquadramento", ela é lida como a barra
                de posição que existia antes — e aí o arrasto na foto,
@@ -283,6 +300,13 @@
             const dicaRecorte = document.createElement('p');
             dicaRecorte.className = 'dica';
 
+            // Montada aqui, e não lá embaixo junto com o resto: a dica
+            // acende esta linha para apontar o zoom, e precisa dela já
+            // existindo na primeira vez que roda.
+            const linhaZoom = document.createElement('div');
+            linhaZoom.className = 'linha-zoom';
+            linhaZoom.append(nomeZoom, menos, barraZoom, mais, centralizar);
+
             function aplicar() {
                 const posicao = `${Math.round(px)}% ${Math.round(py)}%`;
                 foto.style.objectPosition = posicao;
@@ -295,6 +319,12 @@
                uma superfície de arrasto que não arrasta parece defeito
                — então ela avisa, e ensina a saída. */
             function atualizarDica() {
+                // Toda vez que a dica se refaz, a explicação do
+                // travamento sai de cena: ou ele mexeu no zoom, que era
+                // o que ela pedia, ou a foto mudou e ela não vale mais.
+                explicando = false;
+                linhaZoom.classList.remove('pedindo-atencao');
+
                 const passo = passoEmPixels(moldura, foto, zoom);
                 const anda = { lado: passo.x > 0.5, cima: passo.y > 0.5 };
 
@@ -343,10 +373,23 @@
             let ultimoX = 0;
             let ultimoY = 0;
 
+            function explicarTravamento() {
+                if (explicando) return;
+                explicando = true;
+
+                dicaRecorte.textContent = empurrouX > empurrouY
+                    ? 'De lado esta foto não tem para onde ir: ela já ocupa toda a largura do quadrado. Aumente o zoom aqui embaixo e ela passa a andar para os dois lados também.'
+                    : 'Para cima e para baixo esta foto não tem para onde ir: ela já ocupa toda a altura do quadrado. Aumente o zoom aqui embaixo e ela passa a subir e descer também.';
+
+                linhaZoom.classList.add('pedindo-atencao');
+            }
+
             moldura.addEventListener('pointerdown', (evento) => {
                 arrastando = true;
                 ultimoX = evento.clientX;
                 ultimoY = evento.clientY;
+                empurrouX = 0;
+                empurrouY = 0;
                 moldura.setPointerCapture(evento.pointerId);
                 moldura.classList.add('arrastando');
                 evento.preventDefault();
@@ -364,7 +407,14 @@
                 // Levar a foto para a direita é revelar o que estava à
                 // esquerda: a porcentagem anda ao contrário do dedo.
                 if (passo.x > 0) px = entre(px - (dx / passo.x) * 100, 0, 100);
+                else empurrouX += Math.abs(dx);
+
                 if (passo.y > 0) py = entre(py - (dy / passo.y) * 100, 0, 100);
+                else empurrouY += Math.abs(dy);
+
+                // 16px: acima de um tremor da mão, abaixo de um gesto
+                // que ele considere ter feito e falhado.
+                if (empurrouX > 16 || empurrouY > 16) explicarTravamento();
 
                 aplicar();
             });
@@ -379,10 +429,6 @@
             moldura.addEventListener('pointercancel', soltar);
 
             aplicar();
-
-            const linhaZoom = document.createElement('div');
-            linhaZoom.className = 'linha-zoom';
-            linhaZoom.append(nomeZoom, menos, barraZoom, mais, centralizar);
 
             // A dica vem logo abaixo da foto, colada no gesto que ela
             // explica, e antes da barra de zoom. Depois da barra, ela
