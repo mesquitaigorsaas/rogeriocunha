@@ -151,7 +151,43 @@
     // A galeria tem uma foto grande e as outras menores. Quem é a
     // grande: a primeira da ordem, pela mesma razão dos vídeos — um
     // conceito a menos para ele entender.
+    //
+    // Todo quadro é quadrado. Não dá para saber se a próxima foto que
+    // ele subir é retrato ou paisagem, nem que canto dela importa —
+    // então o quadro trata as duas do mesmo jeito, e quem escolhe o
+    // recorte é ele, no painel, arrastando a foto dentro do quadrado.
     // =================================================================
+
+    /* O painel guarda o recorte em dois pedaços: o enquadramento, que
+       são os dois lados de um object-position, e o zoom.
+
+       Aceita o "50% 36%" que o painel escreve hoje e também o
+       "center 36%" que ficou das fotos antigas — daí a conversa com
+       palavras, e não só com números. */
+    function posicaoDe(enquadramento) {
+        const nomes = { center: 50, left: 0, top: 0, right: 100, bottom: 100 };
+        const lado = (parte) => {
+            if (parte in nomes) return nomes[parte];
+            const numero = parseFloat(parte);
+            return Number.isFinite(numero) ? numero : 50;
+        };
+
+        const partes = String(enquadramento || '').trim().split(/\s+/);
+        return `${lado(partes[0])}% ${lado(partes[1])}%`;
+    }
+
+    /* O zoom é um scale com a origem no mesmo ponto do
+       object-position. É o que faz ampliar aproximar o pedaço que ele
+       escolheu, e não o meio da foto — e é também o que dá folga para
+       arrastar uma foto que, sem zoom, caberia justa no quadrado. */
+    function aplicarRecorte(foto, momento) {
+        const posicao = posicaoDe(momento.enquadramento);
+        const zoom = Number(momento.zoom) || 1;
+
+        foto.style.objectPosition = posicao;
+        foto.style.transformOrigin = posicao;
+        foto.style.transform = `scale(${zoom})`;
+    }
 
     async function montarGaleria() {
         const galeria = document.querySelector('.galeria');
@@ -159,7 +195,7 @@
 
         const { data, error } = await window.BANCO
             .from('momentos')
-            .select('id, imagem_url, descricao, enquadramento, ordem')
+            .select('id, imagem_url, descricao, enquadramento, zoom, ordem')
             .eq('publicado', true)
             .order('ordem', { ascending: true });
 
@@ -173,7 +209,7 @@
             foto.src = momento.imagem_url;
             foto.alt = momento.descricao || '';
             foto.loading = 'lazy';
-            foto.style.objectPosition = momento.enquadramento || 'center 50%';
+            aplicarRecorte(foto, momento);
 
             item.appendChild(foto);
             return item;

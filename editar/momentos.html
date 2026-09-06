@@ -67,6 +67,65 @@
 
 
         // =============================================================
+        // O RECORTE
+        //
+        // O quadro da galeria é quadrado e não muda. Não dá para saber
+        // se a próxima foto que ele subir é retrato ou paisagem, nem
+        // que canto dela importa — então quem decide isso é ele, foto a
+        // foto, pegando a imagem e arrastando dentro do quadrado.
+        //
+        // São dois números e mais um: os dois lados de um
+        // object-position, que dizem que ponto da foto fica no centro
+        // da atenção, e o zoom, que aproxima em volta desse mesmo
+        // ponto. O zoom também é o que dá folga para arrastar: uma foto
+        // que cabe justa no quadrado só ganha para onde ir depois de
+        // ampliada.
+        // =============================================================
+
+        const ZOOM_MAXIMO = 4;
+
+        /* Lê "50% 36%" e também o "center 36%" das fotos antigas. */
+        function posicaoDe(enquadramento) {
+            const nomes = { center: 50, left: 0, top: 0, right: 100, bottom: 100 };
+            const lado = (parte) => {
+                if (parte in nomes) return nomes[parte];
+                const numero = parseFloat(parte);
+                return Number.isFinite(numero) ? numero : 50;
+            };
+
+            const partes = String(enquadramento || '').trim().split(/\s+/);
+            return { x: lado(partes[0]), y: lado(partes[1]) };
+        }
+
+        function entre(valor, minimo, maximo) {
+            return Math.min(maximo, Math.max(minimo, valor));
+        }
+
+        /* Quantos pixels a foto anda quando a porcentagem anda 100 —
+           um número por lado.
+
+           São duas parcelas. A primeira é a sobra do object-fit: cover,
+           que já sai multiplicada pelo zoom. A segunda é a própria
+           origem do zoom se deslocando, que arrasta o que está
+           ampliado; sem ela, uma foto sem sobra ficaria presa mesmo
+           depois de aproximada, e o dedo dele não moveria nada. */
+        function passoEmPixels(moldura, foto, zoom) {
+            const quadro = moldura.getBoundingClientRect();
+            const largura = foto.naturalWidth;
+            const altura = foto.naturalHeight;
+
+            if (!largura || !altura) return { x: 0, y: 0 };
+
+            const escala = Math.min(quadro.width, quadro.height) / Math.min(largura, altura);
+
+            return {
+                x: Math.max(0, largura * escala - quadro.width) * zoom + (zoom - 1) * quadro.width,
+                y: Math.max(0, altura * escala - quadro.height) * zoom + (zoom - 1) * quadro.height
+            };
+        }
+
+
+        // =============================================================
         // CARREGAR E DESENHAR
         // =============================================================
 
@@ -159,13 +218,176 @@
             const corpo = document.createElement('div');
             corpo.className = 'ficha-corpo';
 
+            // ---- o recorte: a moldura que se arrasta, e o zoom ----
+            //
+            // Os dois ficam na mesma coluna, um debaixo do outro. Zoom
+            // e arrasto são o mesmo gesto partido em dois; separá-los
+            // pela tela faria ele procurar um enquanto usa o outro.
+
+            const recorte = document.createElement('div');
+
+            const rotuloRecorte = document.createElement('label');
+            rotuloRecorte.className = 'rotulo-recorte';
+            rotuloRecorte.textContent = 'Enquadramento';
+
             const moldura = document.createElement('div');
             moldura.className = 'previa-foto';
             const foto = document.createElement('img');
             foto.src = momento.imagem_url;
             foto.alt = momento.descricao || '';
-            foto.style.objectPosition = momento.enquadramento || 'center 50%';
             moldura.appendChild(foto);
+
+            const inicial = posicaoDe(momento.enquadramento);
+            let px = inicial.x;
+            let py = inicial.y;
+            let zoom = entre(Number(momento.zoom) || 1, 1, ZOOM_MAXIMO);
+
+            /* A barra precisa dizer o nome dela. Sozinha embaixo de um
+               rótulo escrito "Enquadramento", ela é lida como a barra
+               de posição que existia antes — e aí o arrasto na foto,
+               que é o controle de verdade, passa despercebido. */
+            const nomeZoom = document.createElement('span');
+            nomeZoom.className = 'nome-zoom';
+            nomeZoom.textContent = 'Zoom';
+
+            const barraZoom = document.createElement('input');
+            barraZoom.type = 'range';
+            barraZoom.min = '1';
+            barraZoom.max = String(ZOOM_MAXIMO);
+            barraZoom.step = '0.05';
+            barraZoom.value = String(zoom);
+            barraZoom.setAttribute('aria-label', 'Zoom da foto');
+
+            // No celular, acertar um ponto exato de uma barra fina com
+            // o dedo é difícil. Os dois botões dão o passo miúdo.
+            const menos = document.createElement('button');
+            menos.type = 'button';
+            menos.className = 'passo-zoom';
+            menos.textContent = '−';
+            menos.title = 'Afastar';
+            menos.setAttribute('aria-label', 'Afastar');
+
+            const mais = document.createElement('button');
+            mais.type = 'button';
+            mais.className = 'passo-zoom';
+            mais.textContent = '+';
+            mais.title = 'Aproximar';
+            mais.setAttribute('aria-label', 'Aproximar');
+
+            const centralizar = document.createElement('button');
+            centralizar.type = 'button';
+            centralizar.className = 'btn miudo';
+            centralizar.textContent = 'Centralizar';
+            centralizar.title = 'Volta a foto ao meio, sem zoom';
+
+            const dicaRecorte = document.createElement('p');
+            dicaRecorte.className = 'dica';
+
+            function aplicar() {
+                const posicao = `${Math.round(px)}% ${Math.round(py)}%`;
+                foto.style.objectPosition = posicao;
+                foto.style.transformOrigin = posicao;
+                foto.style.transform = `scale(${zoom})`;
+            }
+
+            /* A dica diz o que aquela foto, naquele zoom, aceita fazer.
+               Uma foto quadrada sem zoom não anda para lado nenhum, e
+               uma superfície de arrasto que não arrasta parece defeito
+               — então ela avisa, e ensina a saída. */
+            function atualizarDica() {
+                const passo = passoEmPixels(moldura, foto, zoom);
+                const anda = { lado: passo.x > 0.5, cima: passo.y > 0.5 };
+
+                if (anda.lado && anda.cima) {
+                    dicaRecorte.textContent = 'Arraste a foto para escolher o que aparece no quadrado. Use o zoom para aproximar.';
+                } else if (anda.cima) {
+                    dicaRecorte.textContent = 'Arraste a foto para cima e para baixo. Para movê-la de lado também, aumente o zoom.';
+                } else if (anda.lado) {
+                    dicaRecorte.textContent = 'Arraste a foto de um lado ao outro. Para movê-la para cima e para baixo também, aumente o zoom.';
+                } else {
+                    dicaRecorte.textContent = 'Esta foto cabe inteira no quadrado, então não há para onde arrastá-la. Aumente o zoom para poder mexer.';
+                }
+            }
+
+            // naturalWidth só existe depois de a imagem chegar, e a
+            // dica depende dele. Se já estiver em cache, o load não
+            // dispara — daí as duas chamadas.
+            foto.addEventListener('load', atualizarDica);
+            if (foto.complete) atualizarDica();
+
+            function mudarZoom(novo) {
+                zoom = entre(Number(novo), 1, ZOOM_MAXIMO);
+                barraZoom.value = String(zoom);
+                aplicar();
+                atualizarDica();
+            }
+
+            barraZoom.addEventListener('input', () => mudarZoom(barraZoom.value));
+            menos.addEventListener('click', () => mudarZoom(zoom - 0.25));
+            mais.addEventListener('click', () => mudarZoom(zoom + 0.25));
+
+            centralizar.addEventListener('click', () => {
+                px = 50;
+                py = 50;
+                mudarZoom(1);
+            });
+
+            /* O arrasto. Ponteiro, e não mouse: o mesmo código serve
+               para o dedo no celular e para o mouse no computador.
+
+               setPointerCapture é o que faz o gesto continuar valendo
+               quando ele sai da moldura no meio do movimento — sem
+               isso, a foto trava na borda e ele acha que chegou ao
+               fim. */
+            let arrastando = false;
+            let ultimoX = 0;
+            let ultimoY = 0;
+
+            moldura.addEventListener('pointerdown', (evento) => {
+                arrastando = true;
+                ultimoX = evento.clientX;
+                ultimoY = evento.clientY;
+                moldura.setPointerCapture(evento.pointerId);
+                moldura.classList.add('arrastando');
+                evento.preventDefault();
+            });
+
+            moldura.addEventListener('pointermove', (evento) => {
+                if (!arrastando) return;
+
+                const passo = passoEmPixels(moldura, foto, zoom);
+                const dx = evento.clientX - ultimoX;
+                const dy = evento.clientY - ultimoY;
+                ultimoX = evento.clientX;
+                ultimoY = evento.clientY;
+
+                // Levar a foto para a direita é revelar o que estava à
+                // esquerda: a porcentagem anda ao contrário do dedo.
+                if (passo.x > 0) px = entre(px - (dx / passo.x) * 100, 0, 100);
+                if (passo.y > 0) py = entre(py - (dy / passo.y) * 100, 0, 100);
+
+                aplicar();
+            });
+
+            const soltar = (evento) => {
+                if (!arrastando) return;
+                arrastando = false;
+                moldura.releasePointerCapture(evento.pointerId);
+                moldura.classList.remove('arrastando');
+            };
+            moldura.addEventListener('pointerup', soltar);
+            moldura.addEventListener('pointercancel', soltar);
+
+            aplicar();
+
+            const linhaZoom = document.createElement('div');
+            linhaZoom.className = 'linha-zoom';
+            linhaZoom.append(nomeZoom, menos, barraZoom, mais, centralizar);
+
+            // A dica vem logo abaixo da foto, colada no gesto que ela
+            // explica, e antes da barra de zoom. Depois da barra, ela
+            // seria lida como explicação da barra.
+            recorte.append(rotuloRecorte, moldura, dicaRecorte, linhaZoom);
 
             const campos = document.createElement('div');
 
@@ -174,31 +396,8 @@
                 'Não aparece na tela. É o que uma pessoa cega ouve no lugar da foto, e o que o Google lê.'
             );
 
-            // O enquadramento é valor de CSS, e ninguém vai digitar
-            // "center 36%". Vira uma barra: ele arrasta e vê a foto se
-            // mexer na moldura, que é o formato em que ela vai aparecer
-            // no site.
-            const campoCorte = document.createElement('div');
-            campoCorte.className = 'campo';
-            const rotuloCorte = document.createElement('label');
-            rotuloCorte.textContent = 'Enquadramento';
-            const barra = document.createElement('input');
-            barra.type = 'range';
-            barra.min = '0';
-            barra.max = '100';
-            barra.step = '1';
-            barra.value = String(porcentagemDe(momento.enquadramento));
-            barra.style.width = '100%';
-            const dicaCorte = document.createElement('p');
-            dicaCorte.className = 'dica';
-            dicaCorte.textContent = 'A galeria corta a foto num formato fixo. Arraste para escolher que parte fica visível.';
-            barra.addEventListener('input', () => {
-                foto.style.objectPosition = `center ${barra.value}%`;
-            });
-            campoCorte.append(rotuloCorte, barra, dicaCorte);
-
-            campos.append(campoDescricao, campoCorte);
-            corpo.append(moldura, campos);
+            campos.append(campoDescricao);
+            corpo.append(recorte, campos);
 
             // ---- ações ----
             const acoes = document.createElement('div');
@@ -210,7 +409,8 @@
             salvar.textContent = 'Salvar foto';
             salvar.addEventListener('click', () => gravar(momento, {
                 descricao: campoDescricao.querySelector('input').value,
-                enquadramento: `center ${barra.value}%`
+                enquadramento: `${Math.round(px)}% ${Math.round(py)}%`,
+                zoom: Number(zoom.toFixed(2))
             }, salvar));
 
             const trocar = document.createElement('label');
@@ -258,12 +458,6 @@
             }
 
             return campo;
-        }
-
-        /** "center 36%" -> 36. Sem número reconhecível, fica no meio. */
-        function porcentagemDe(enquadramento) {
-            const achou = String(enquadramento || '').match(/(\d+)%/);
-            return achou ? Number(achou[1]) : 50;
         }
 
 
@@ -316,7 +510,8 @@
 
             const { error } = await banco.from('momentos').update({
                 descricao: valores.descricao.trim(),
-                enquadramento: valores.enquadramento
+                enquadramento: valores.enquadramento,
+                zoom: valores.zoom
             }).eq('id', momento.id);
 
             botao.disabled = false;
@@ -381,6 +576,7 @@
         (async function () {
             const editor = await exigirEditor();
             if (!editor) return;
+
             carregar();
         })();
     })();

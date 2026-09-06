@@ -878,6 +878,17 @@ a {
 
 /* ---------------------------------------------------------------------
    GALERIA
+
+   Todo quadro é quadrado, e é de propósito. Não dá para saber de
+   antemão se a próxima foto que ele subir é retrato ou paisagem: um
+   quadro que se adapta à foto faria a grade mudar de forma a cada
+   envio, e um quadro deitado ou em pé escolheria por ele. O quadrado é
+   o único que trata as duas do mesmo jeito.
+
+   Que parte da foto aparece dentro do quadrado é escolha dele, foto a
+   foto, arrastando a imagem no painel. O que sai de lá é um
+   object-position com os dois lados — "50% 36%" — e é ele que entra
+   aqui.
    --------------------------------------------------------------------- */
 .galeria {
     display: grid;
@@ -893,15 +904,18 @@ a {
     overflow: hidden;
 }
 
-/* O primeiro ocupa dois por dois, para a grade não ficar monótona. */
+/* O primeiro ocupa dois por dois, para a grade não ficar monótona.
+   Dois de largura e dois de altura, e não dois de largura só: dobrando
+   os dois lados ele cresce e continua quadrado como os outros. */
 .galeria-item.grande {
     grid-column: span 2;
     grid-row: span 2;
-    aspect-ratio: auto;
 }
 
+/* Em duas colunas ele já ocupa a linha inteira. Segurar duas linhas só
+   reservaria um andar que ninguém usaria. */
 @media (max-width: 860px) {
-    .galeria-item.grande { grid-column: span 2; grid-row: span 1; aspect-ratio: 1 / 1; }
+    .galeria-item.grande { grid-row: span 1; }
 }
 
 .galeria-item img { width: 100%; height: 100%; object-fit: cover; }

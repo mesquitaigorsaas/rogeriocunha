@@ -366,21 +366,92 @@ body.painel {
 
 /* A moldura da foto na tela de momentos.
 
-   Ela tem a mesma proporção do quadro da galeria de propósito: é
-   arrastando a barra e olhando aqui que ele decide o enquadramento, e
-   isso só funciona se o que ele vê aqui for o que vai aparecer lá. */
+   Quadrada, igual ao quadro da galeria. Isso é o ponto: é arrastando a
+   foto aqui dentro e olhando o resultado que ele decide o recorte, e
+   isso só funciona se o que ele vê aqui for o que vai aparecer lá. Até
+   aqui a moldura era 4/3 e o quadro do site era quadrado — o que ele
+   ajustava não era o que saía.
+
+   É também a superfície de arrasto: ele pega a foto e leva para onde
+   quiser, no lado que tiver sobra. */
 .previa-foto {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1 / 1;
     background: #ded5c8;
     border-radius: 3px;
     overflow: hidden;
+    cursor: grab;
+
+    /* Sem isto, no celular o dedo que tenta mover a foto rola a página.
+       O navegador decide cedo se o gesto é rolagem ou não, e depois de
+       decidir não devolve. */
+    touch-action: none;
+
+    /* Arrastar em cima de uma imagem seleciona ou começa um
+       drag-and-drop nativo. Os dois atrapalham o gesto. */
+    user-select: none;
+    -webkit-user-select: none;
 }
+
+.previa-foto.arrastando { cursor: grabbing; }
+
+/* O rótulo do recorte. Mesma cara dos rótulos de campo, mas o recorte
+   não é um .campo — é uma moldura com um controle embaixo. */
+.rotulo-recorte {
+    display: block;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+    margin-bottom: 6px;
+}
+
+/* A linha do zoom, logo abaixo da moldura: o nome, o menos, a barra,
+   o mais e o "Centralizar".
+
+   O nome está escrito porque a barra precisa dizer o que é. Sem ele,
+   uma barra solta embaixo de um bloco chamado "Enquadramento" é lida
+   como a barra de posição — e o arrasto na foto, que é o controle de
+   verdade, passa despercebido. */
+.linha-zoom {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.nome-zoom {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+}
+
+.linha-zoom input[type="range"] { flex: 1; min-width: 60px; }
+
+/* Alvos de 30px: um dedo não acerta menos que isso com confiança. */
+.passo-zoom {
+    width: 30px;
+    height: 30px;
+    flex: none;
+    padding: 0;
+    border: 1px solid var(--linha);
+    border-radius: 3px;
+    background: #fff;
+    color: var(--tinta);
+    font-size: 1.05rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.passo-zoom:hover { border-color: var(--tinta-fraca); }
 
 .previa-foto img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    -webkit-user-drag: none;
 }
 
 .previa-video img {
