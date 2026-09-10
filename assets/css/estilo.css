@@ -624,26 +624,33 @@ a {
 
 .video-legenda p { color: var(--tinta-suave); font-size: 0.95rem; }
 
-/* As colunas têm teto. Sem ele, numa tela larga cada quadro passaria
-   de 400px de largura e de 700px de altura, e a grade viraria uma
-   parede. Com o teto, as colunas param de crescer e se centram. */
+/* Isto era uma grade de três colunas, e a conta só fechava com três
+   vídeos. Com quatro, o quarto caía sozinho na segunda fila, encostado
+   na esquerda, com um vão do tamanho de dois quadros ao lado. Ele vai
+   somar vídeos com o tempo, então a sobra na última fila é a regra, e
+   não a exceção: cinco sobram dois, sete sobram um.
+
+   Em linha que quebra, a última fila se centra sozinha, qualquer que
+   seja o número. E some a necessidade das quebras por tamanho de tela:
+   três quadros de 300px não cabem em 940px, então viram dois; dois não
+   cabem em 620px, então vira um. A conta é a mesma que as regras de
+   tela faziam na mão.
+
+   Os quadros não crescem, só encolhem. Sem o teto de 300px, numa tela
+   larga cada um passaria de 400px de largura e de 700px de altura, e a
+   seção viraria uma parede. Encolher é para o celular estreito, onde
+   300px não cabem entre as margens. */
 .grade-videos {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 300px));
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 34px;
     margin-top: 56px;
 }
 
-@media (max-width: 940px) {
-    .grade-videos { grid-template-columns: repeat(2, minmax(0, 300px)); }
-}
+.grade-videos > * { flex: 0 1 300px; }
 
-/* No celular, um quadro em pé de largura inteira tomaria a tela toda e
-   empurraria a legenda para fora. Fica na largura do destaque. */
-@media (max-width: 620px) {
-    .grade-videos { grid-template-columns: minmax(0, 320px); gap: 40px; }
-}
+@media (max-width: 620px) { .grade-videos { gap: 40px; } }
 
 
 /* ---------------------------------------------------------------------
