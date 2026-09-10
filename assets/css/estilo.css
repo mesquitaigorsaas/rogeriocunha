@@ -496,10 +496,20 @@ a {
    página baixar megabytes de código do Google antes mesmo de a pessoa
    decidir assistir. Com a capa, o site abre leve e o peso só chega
    para quem quis ver.
+
+   O quadro é em pé, e não deitado. Os vídeos nascem no celular dele,
+   no formato de reel, e é assim que continuam depois de subirem para
+   o YouTube. Um quadro deitado receberia esse vídeo com duas tarjas
+   pretas nas laterais e cortaria a capa em cima e embaixo, bem onde
+   costuma estar o rosto de quem fala.
+
+   Em pé, a capa do YouTube encaixa sozinha. Ela vem numa moldura mais
+   larga que o vídeo, com preto sobrando dos dois lados, e o recorte
+   de "cover" come exatamente essa sobra e deixa só a imagem.
    --------------------------------------------------------------------- */
 .video-quadro {
     position: relative;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 9 / 16;
     background-color: #17140f;
     overflow: hidden;
     cursor: pointer;
@@ -589,7 +599,15 @@ a {
     font-weight: 500;
 }
 
-.video-destaque { max-width: 900px; margin: 0 auto 26px; }
+/* Em pé, largura vira altura: um destaque de 900px teria 1600px de
+   altura, e ninguém veria o fim dele sem rolar a página. 340px de
+   largura dão cerca de 600px de altura, do tamanho de um celular.
+
+   O teto de 340px é só do quadro. A legenda continua com folga, senão
+   o título do vídeo em destaque quebraria em quatro linhas. */
+.video-destaque { max-width: 560px; margin: 0 auto 26px; }
+
+.video-destaque .video-quadro { max-width: 340px; margin: 0 auto; }
 
 .video-legenda { margin-top: 18px; }
 
@@ -606,15 +624,26 @@ a {
 
 .video-legenda p { color: var(--tinta-suave); font-size: 0.95rem; }
 
+/* As colunas têm teto. Sem ele, numa tela larga cada quadro passaria
+   de 400px de largura e de 700px de altura, e a grade viraria uma
+   parede. Com o teto, as colunas param de crescer e se centram. */
 .grade-videos {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 300px));
+    justify-content: center;
     gap: 34px;
     margin-top: 56px;
 }
 
-@media (max-width: 940px) { .grade-videos { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 620px) { .grade-videos { grid-template-columns: 1fr; gap: 40px; } }
+@media (max-width: 940px) {
+    .grade-videos { grid-template-columns: repeat(2, minmax(0, 300px)); }
+}
+
+/* No celular, um quadro em pé de largura inteira tomaria a tela toda e
+   empurraria a legenda para fora. Fica na largura do destaque. */
+@media (max-width: 620px) {
+    .grade-videos { grid-template-columns: minmax(0, 320px); gap: 40px; }
+}
 
 
 /* ---------------------------------------------------------------------
