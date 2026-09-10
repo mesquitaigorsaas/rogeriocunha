@@ -349,9 +349,20 @@ body.painel {
 
 /* ---------------------------------------------------------------------
    A PRÉVIA DO VÍDEO
+
+   Em pé, igual ao quadro do site. É a mesma regra da prévia da foto:
+   o que ele vê aqui tem que ser o que sai lá. Uma moldura deitada aqui
+   mostraria a capa com tarja preta dos dois lados, e ele descartaria
+   um vídeo bom achando que tinha colado o endereço errado.
+
+   O teto de largura existe porque a coluna tem 260px: sem ele a prévia
+   ficaria com 462px de altura e passaria por cima do formulário todo.
+   Com 210px ela fica na mesma altura da capa de livro das outras
+   telas, que é o ritmo que o painel já tem.
    --------------------------------------------------------------------- */
 .previa-video {
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 9 / 16;
+    max-width: 210px;
     background: #ded5c8;
     border-radius: 3px;
     overflow: hidden;
