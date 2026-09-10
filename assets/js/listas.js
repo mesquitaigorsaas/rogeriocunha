@@ -266,7 +266,7 @@
         const reservada = document.createElement('div');
         reservada.className = 'capa-reservada';
         const autor = document.createElement('small');
-        autor.textContent = 'Rogério Cunha';
+        autor.textContent = 'Rogerio Cunha';
         const nome = document.createElement('strong');
         nome.textContent = livro.titulo;
         reservada.append(autor, nome, document.createElement('span'));

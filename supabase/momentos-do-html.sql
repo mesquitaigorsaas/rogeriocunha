@@ -1,7 +1,7 @@
 -- =====================================================================
 -- AS FOTOS DA GALERIA SAEM DO HTML E ENTRAM NO BANCO
 --
--- A galeria da página inicial mostra três fotos do Rogério. Elas estão
+-- A galeria da página inicial mostra três fotos do Rogerio. Elas estão
 -- escritas no HTML desde que o site nasceu — e por isso o painel de
 -- Editar momentos não as enxergava: ele lê a tabela, e a tabela estava
 -- vazia.
@@ -30,9 +30,9 @@ select v.imagem_url, v.descricao, v.enquadramento, v.ordem, v.destaque, true
   from (values
     -- A grande, que abre a galeria. O 36% tira o corte da testa: é
     -- retrato vertical dentro de um quadro que a galeria fixa.
-    ('/assets/img/RogerioCunha4.jpeg', 'Rogério Cunha sentado à mesa', 'center 36%', 10, true),
-    ('/assets/img/RogerioCunha1.jpeg', 'Rogério Cunha',                'center 34%', 20, false),
-    ('/assets/img/RogerioCunha2.jpeg', 'Rogério Cunha',                'center 20%', 30, false)
+    ('/assets/img/RogerioCunha4.jpeg', 'Rogerio Cunha sentado à mesa', 'center 36%', 10, true),
+    ('/assets/img/RogerioCunha1.jpeg', 'Rogerio Cunha',                'center 34%', 20, false),
+    ('/assets/img/RogerioCunha2.jpeg', 'Rogerio Cunha',                'center 20%', 30, false)
   ) as v(imagem_url, descricao, enquadramento, ordem, destaque)
  where not exists (
     select 1 from public.momentos m where m.imagem_url = v.imagem_url

@@ -38,7 +38,7 @@
 
     // O cliente do banco é o mesmo de edicao.js. Dois clientes na mesma
     // página brigam pela sessão guardada no navegador: um renova o
-    // acesso, o outro segue com o antigo, e o Rogério é deslogado do
+    // acesso, o outro segue com o antigo, e o Rogerio é deslogado do
     // nada no meio de uma edição.
     const banco = window.BANCO;
     if (!banco) return;
@@ -202,7 +202,7 @@
     }
 
     function escreverArtigo(artigo) {
-        document.title = `${artigo.titulo} — Rogério Cunha`;
+        document.title = `${artigo.titulo} — Rogerio Cunha`;
 
         const descricao = document.querySelector('meta[name="description"]');
         if (descricao && artigo.linha_fina) {
@@ -242,7 +242,7 @@
      * pediu. Some o corpo, e fica um recado com o caminho de volta.
      */
     function textoNaoEncontrado() {
-        document.title = 'Texto não encontrado — Rogério Cunha';
+        document.title = 'Texto não encontrado — Rogerio Cunha';
 
         const topo = document.querySelector('.artigo-topo');
         if (topo) {

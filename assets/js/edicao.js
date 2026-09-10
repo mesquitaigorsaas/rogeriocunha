@@ -1,7 +1,7 @@
 /* =====================================================================
    O site editável por dentro.
 
-   A ideia inteira cabe numa frase: o Rogério vê o site exatamente como
+   A ideia inteira cabe numa frase: o Rogerio vê o site exatamente como
    o público vê, e a única diferença é um botão "Editar" em cima de cada
    pedaço que ele pode mudar.
 
@@ -23,7 +23,7 @@
    O TEXTO DO HTML É O CHÃO, NÃO O ANDAIME
 
    O que está escrito no HTML continua sendo o texto de verdade. O banco
-   só substitui o que já está lá, e só para os pedaços que o Rogério
+   só substitui o que já está lá, e só para os pedaços que o Rogerio
    editou algum dia.
 
    Isso não é preguiça — é o que mantém o site de pé:

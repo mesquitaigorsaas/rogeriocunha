@@ -22,7 +22,7 @@
 
    É uma conta separada da que guarda os outros projetos. Site de
    cliente sob conta do cliente: se um dia o site for entregue ao
-   Rogério, o banco vai junto, sem depender de um e-mail de terceiro.
+   Rogerio, o banco vai junto, sem depender de um e-mail de terceiro.
    ===================================================================== */
 window.CONFIG_SUPABASE = {
     url: 'https://fkxtbikeilihabpniqxm.supabase.co',
