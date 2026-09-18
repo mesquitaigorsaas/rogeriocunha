@@ -85,21 +85,6 @@ a {
 
 
 /* ---------------------------------------------------------------------
-   FAIXA DE PRÉVIA
-   Some com uma linha só, quando o conteúdo de verdade entrar.
-   --------------------------------------------------------------------- */
-.faixa-previa {
-    background-color: var(--tinta);
-    color: #d9d2c7;
-    text-align: center;
-    font-size: 0.72rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    padding: 9px 20px;
-}
-
-
-/* ---------------------------------------------------------------------
    CABEÇALHO
    --------------------------------------------------------------------- */
 .cabecalho {
