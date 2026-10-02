@@ -1,0 +1,22 @@
+# O plano gratuito do Supabase pausa o banco depois de uns 7 dias sem uso,
+# e com ele pausado o site perde livros, fotos, textos e o login do editor.
+# Esta tarefa faz uma leitura simples a cada 3 dias para o banco nunca parar.
+# Usa o endereço e a chave pública que já estão em assets/js/supabase-config.js.
+name: Manter banco acordado
+
+on:
+  schedule:
+    - cron: "0 12 */3 * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ler um livro do banco
+        run: |
+          URL=$(grep -oE "url: *'[^']+'" assets/js/supabase-config.js | cut -d"'" -f2)
+          CHAVE=$(grep -oE "chavePublica: *'[^']+'" assets/js/supabase-config.js | cut -d"'" -f2)
+          curl -sf "$URL/rest/v1/livros?select=id&limit=1" \
+            -H "apikey: $CHAVE" -H "Authorization: Bearer $CHAVE"
