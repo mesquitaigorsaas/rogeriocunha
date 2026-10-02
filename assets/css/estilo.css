@@ -1523,6 +1523,20 @@ a {
     cursor: pointer;
 }
 
+.link-esqueci {
+    display: block;
+    margin: 16px auto 0;
+    padding: 8px;
+    border: none;
+    background: none;
+    font-size: 0.95rem;
+    color: var(--realce);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.link-esqueci[hidden] { display: none; }
+
 .recado-entrar {
     margin-top: 20px;
     padding: 14px 16px;

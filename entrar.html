@@ -47,6 +47,17 @@
             <button type="submit" class="botao" id="botaoEntrar">Entrar</button>
         </form>
 
+        <!-- Esqueceu a senha: o Supabase manda um link para o e-mail, e o
+             link volta para esta mesma página, que então pede a senha nova. -->
+        <button type="button" class="link-esqueci" id="botaoEsqueci">Esqueci minha senha</button>
+
+        <form id="formaNovaSenha" hidden>
+            <label for="novaSenha">Senha nova (pelo menos 8 letras ou números)</label>
+            <input type="password" id="novaSenha" autocomplete="new-password" minlength="8" required>
+
+            <button type="submit" class="botao" id="botaoSalvarSenha">Salvar senha nova</button>
+        </form>
+
         <div class="recado-entrar" id="recado" hidden></div>
 
     </main>
@@ -68,9 +79,65 @@
             recado.hidden = false;
         }
 
+        // Veio do link "trocar senha" do e-mail? Então o endereço traz
+        // type=recovery, e a pessoa fica aqui para escolher a senha nova.
+        const veioDoEmail = /type=recovery/.test(window.location.hash);
+        const formaNova = document.getElementById('formaNovaSenha');
+        const botaoEsqueci = document.getElementById('botaoEsqueci');
+
+        function mostrarSenhaNova() {
+            forma.hidden = true;
+            botaoEsqueci.hidden = true;
+            formaNova.hidden = false;
+            document.querySelector('.caixa-entrar .explicativo').hidden = true;
+            document.querySelector('.caixa-entrar h1').textContent = 'Escolha uma senha nova';
+        }
+
+        if (veioDoEmail) mostrarSenhaNova();
+        banco.auth.onAuthStateChange((evento) => {
+            if (evento === 'PASSWORD_RECOVERY') mostrarSenhaNova();
+        });
+
         // Já está logado? Não faz sentido pedir a senha de novo.
         banco.auth.getSession().then(({ data: { session } }) => {
-            if (session) window.location.href = 'index.html';
+            if (session && !veioDoEmail) window.location.href = 'index.html';
+        });
+
+        botaoEsqueci.addEventListener('click', async () => {
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                dizer('Escreva o seu e-mail no campo acima e clique de novo em "Esqueci minha senha".');
+                document.getElementById('email').focus();
+                return;
+            }
+
+            botaoEsqueci.disabled = true;
+            await banco.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + window.location.pathname
+            });
+            botaoEsqueci.disabled = false;
+
+            // Mesmo recado exista o e-mail ou não, pelo motivo do recado de login.
+            dizer('Se esse e-mail tiver acesso, chega nele em instantes um link para criar uma senha nova. Confira também a caixa de spam.');
+        });
+
+        formaNova.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const botaoSalvar = document.getElementById('botaoSalvarSenha');
+            botaoSalvar.disabled = true;
+
+            const { error } = await banco.auth.updateUser({
+                password: document.getElementById('novaSenha').value
+            });
+
+            botaoSalvar.disabled = false;
+            if (error) {
+                dizer('Não deu para salvar. O link do e-mail pode ter vencido: volte, clique em "Esqueci minha senha" e use o link mais novo.');
+                return;
+            }
+
+            dizer('Senha nova salva! Abrindo o site...');
+            setTimeout(() => { window.location.href = 'index.html'; }, 1500);
         });
 
         forma.addEventListener('submit', async (e) => {
