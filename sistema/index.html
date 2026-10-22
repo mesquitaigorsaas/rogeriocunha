@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="Central de Publicação — Rogério Cunha">
+<meta property="og:image" content="https://drrogeriocunha.com.br/sistema/img/capa-exilados-do-templo.jpg">
+<meta property="og:description" content="Seus livros à venda na Amazon, Mercado Livre, Shopee, Americanas e Magalu com um único cadastro.">
+<title>Central de Publicação — Rogério Cunha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --papel: #faf7f2; --fundo: #f2ece2; --tinta: #1f1c19; --suave: #5a544c; --fraca: #8b8377;
+    --realce: #7d3c34; --realce-escuro: #5f2c26; --realce-claro: #f5e9e6; --linha: #e2d9cc; --ouro: #c9a227;
+    --ok: #15803d; --ok-claro: #dcfce7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: Inter, system-ui, sans-serif; background: var(--papel); color: var(--tinta); line-height: 1.55; }
+  h1, h2, h3 { font-family: "Playfair Display", Georgia, serif; letter-spacing: -0.01em; line-height: 1.15; }
+  img { display: block; max-width: 100%; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+  .demo { background: var(--tinta); color: #f3ede4; font-size: 12.5px; text-align: center; padding: 7px 16px; }
+  .demo b { color: #ffd9a8; }
+
+  header.app { background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--linha); position: sticky; top: 0; z-index: 20; }
+  header.app .wrap { display: flex; align-items: center; gap: 14px; height: 66px; }
+  .autor { display: flex; align-items: center; gap: 12px; margin-right: auto; min-width: 0; }
+  .autor img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; object-position: top; border: 2px solid var(--realce-claro); }
+  .autor b { display: block; font-family: "Playfair Display", serif; font-size: 18px; line-height: 1.1; }
+  .autor span { font-size: 12px; color: var(--fraca); }
+  .sync { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ok); background: var(--ok-claro); padding: 6px 12px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); animation: pulse 2s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(21,128,61,.5); } 70% { box-shadow: 0 0 0 8px rgba(21,128,61,0); } 100% { box-shadow: 0 0 0 0 rgba(21,128,61,0); } }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; cursor: pointer; font: 600 15px Inter, sans-serif; border-radius: 12px; padding: 0 22px; height: 48px; text-decoration: none; transition: transform .15s, background .15s; }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--realce); color: #fff; box-shadow: 0 10px 24px rgba(125,60,52,.3); }
+  .btn-primary:hover { background: var(--realce-escuro); }
+  .btn-claro { background: #fff; color: var(--realce); border: 1px solid var(--linha); }
+  .btn svg { width: 18px; height: 18px; }
+
+  /* logotipos das lojas: caixas do mesmo tamanho */
+  .logo { display: inline-block; position: relative; overflow: hidden; background: #fff; border-radius: 10px; --p: 6px; }
+  .logo img { position: absolute; inset: var(--p); width: calc(100% - 2 * var(--p)); height: calc(100% - 2 * var(--p)); object-fit: contain; }
+  .logo.amazon img { top: calc(var(--p) + 3px); }
+  .minis .logo { --p: 3px; }
+  .logo.shopee { --p: 2px; }
+  html, body { overflow-x: clip; }
+  .estante .flutua { --p: 8px; }
+
+  /* abertura */
+  .hero { padding-block: 54px 40px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; }
+  .selo { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--realce); background: var(--realce-claro); padding: 6px 14px; border-radius: 999px; }
+  .hero h1 { font-size: clamp(34px, 5vw, 54px); margin-top: 18px; }
+  .hero h1 em { color: var(--realce); }
+  .hero p.lead { margin-top: 18px; font-size: 19px; color: var(--suave); }
+  .hero .acoes { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .estante { position: relative; height: 470px; }
+  .estante img.capa { position: absolute; width: 190px; border-radius: 4px; box-shadow: 0 24px 50px rgba(31,28,25,.35); transition: transform .4s; }
+  .estante img.capa:hover { transform: translateY(-8px) rotate(0deg) !important; z-index: 9; }
+  .estante .flutua { position: absolute; width: 132px; height: 52px; padding: 8px 14px; box-shadow: 0 12px 30px rgba(31,28,25,.18); border: 1px solid var(--linha); animation: boia 5s ease-in-out infinite; z-index: 8; }
+  @keyframes boia { 50% { transform: translateY(-8px); } }
+
+  .faixa { border-block: 1px solid var(--linha); background: #fff; }
+  .faixa .wrap { display: flex; align-items: center; justify-content: space-between; gap: 22px; padding-block: 22px; flex-wrap: wrap; }
+  .faixa p { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--fraca); }
+  .faixa .logo { width: 140px; height: 44px; }
+
+  section.bloco { padding-block: 44px 10px; }
+  .titulo { margin-bottom: 22px; }
+  .titulo small { font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--realce); }
+  .titulo h2 { font-size: clamp(26px, 3.4vw, 36px); margin-top: 4px; }
+  .titulo p { color: var(--suave); margin-top: 6px; font-size: 16.5px; max-width: 720px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .kpi { background: #fff; border: 1px solid var(--linha); border-radius: 18px; padding: 20px; }
+  .kpi small { color: var(--fraca); font-size: 13px; }
+  .kpi b { display: block; font-size: 34px; font-weight: 700; margin-top: 2px; font-family: "Playfair Display", serif; }
+  .kpi span { font-size: 12.5px; color: var(--ok); font-weight: 600; }
+
+  .canais { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .canal { background: #fff; border: 1px solid var(--linha); border-radius: 18px; padding: 18px; text-align: center; }
+  .canal .logo { width: 100%; height: 54px; padding: 4px 8px; }
+  .canal .st { margin-top: 14px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ok); font-weight: 600; background: var(--ok-claro); padding: 4px 10px; border-radius: 999px; }
+  .canal .st svg { width: 14px; height: 14px; }
+  .canal p.det { margin-top: 10px; font-size: 13px; color: var(--fraca); }
+  .canal p.det b { color: var(--tinta); }
+
+  /* vitrine dos livros */
+  .livros { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
+  .livro { background: #fff; border: 1px solid var(--linha); border-radius: 18px; padding: 14px; display: flex; flex-direction: column; }
+  .livro .capa { aspect-ratio: 148 / 210; border-radius: 6px; overflow: hidden; box-shadow: 0 14px 30px rgba(31,28,25,.22); }
+  .livro .capa img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+  .livro:hover .capa img { transform: scale(1.04); }
+  .livro h3 { font-size: 16.5px; margin-top: 14px; }
+  .livro .sub { font-size: 12.5px; color: var(--fraca); margin-top: 3px; flex: 1; }
+  .livro .preco { display: flex; align-items: baseline; justify-content: space-between; margin-top: 10px; }
+  .livro .preco b { font-size: 20px; }
+  .livro .preco span { font-size: 12px; color: var(--fraca); }
+  .livro .onde { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--linha); }
+  .livro .onde small { display: block; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ok); margin-bottom: 6px; }
+  .minis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .minis .logo { height: 24px; border: 1px solid var(--linha); border-radius: 6px; padding: 3px; }
+
+  /* simulação */
+  .novo { display: grid; grid-template-columns: 230px 1fr; gap: 30px; background: #fff; border: 1px solid var(--linha); border-radius: 24px; padding: 28px; align-items: start; }
+  .capa-nova { aspect-ratio: 148 / 210; border-radius: 6px; background: linear-gradient(160deg, var(--realce) 0%, var(--realce-escuro) 100%); color: #fff; padding: 22px 18px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 18px 40px rgba(95,44,38,.35); position: relative; overflow: hidden; }
+  .capa-nova::after { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(255,255,255,.3); border-radius: 3px; }
+  .capa-nova b { font-family: "Playfair Display", serif; font-size: 26px; line-height: 1.15; font-style: italic; }
+  .capa-nova span { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
+  .campos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0 20px; }
+  .campo label { display: block; font-size: 12px; color: var(--fraca); margin-bottom: 4px; }
+  .campo div { border: 1px solid var(--linha); border-radius: 10px; padding: 10px 12px; font-weight: 600; font-size: 14px; background: var(--papel); }
+  .passos { display: grid; gap: 12px; margin-top: 20px; }
+  .passo { display: grid; grid-template-columns: 120px 1fr 120px; gap: 14px; align-items: center; font-size: 14px; }
+  .passo .logo { width: 120px; height: 36px; border: 1px solid var(--linha); padding: 4px 10px; }
+  .barra { height: 10px; border-radius: 999px; background: var(--fundo); overflow: hidden; }
+  .barra i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--realce), #b45a4e); border-radius: 999px; transition: width .5s ease; }
+  .passo .res { font-size: 13px; font-weight: 600; color: var(--fraca); text-align: right; }
+  .passo .res.ok { color: var(--ok); }
+  .final { display: none; margin-top: 20px; padding: 14px 16px; border-radius: 12px; background: var(--ok-claro); color: var(--ok); font-weight: 600; }
+
+  /* pedidos */
+  .duas { display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; }
+  .card { background: #fff; border: 1px solid var(--linha); border-radius: 20px; padding: 22px; }
+  .card h3 { font-size: 21px; }
+  .card .nota { font-size: 12.5px; color: var(--fraca); }
+  .pedido { display: grid; grid-template-columns: 96px 40px 1fr auto; gap: 12px; align-items: center; padding: 11px 0; border-top: 1px solid var(--linha); font-size: 14px; }
+  .pedido:first-of-type { border-top: 0; }
+  .pedido .logo { width: 96px; height: 30px; border: 1px solid var(--linha); padding: 3px 8px; }
+  .pedido img.mini { width: 40px; height: 56px; object-fit: cover; border-radius: 3px; box-shadow: 0 4px 10px rgba(31,28,25,.2); }
+  .pedido small { display: block; color: var(--fraca); font-size: 12px; }
+  .pedido .v { font-weight: 700; text-align: right; }
+  .pedido .v small { color: var(--ok); font-weight: 600; }
+  .barras { display: grid; gap: 14px; margin-top: 14px; }
+  .barras .linha { display: grid; grid-template-columns: 96px 1fr 70px; gap: 12px; align-items: center; font-size: 13px; }
+  .barras .logo { width: 96px; height: 30px; border: 1px solid var(--linha); padding: 3px 8px; }
+  .barras .barra { height: 12px; }
+  .barras .barra i { transition: width 1.2s ease; }
+  .barras em { font-style: normal; text-align: right; font-weight: 600; }
+
+  /* proposta */
+  .ganhos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .ganho { background: #fff; border: 1px solid var(--linha); border-radius: 20px; padding: 24px; }
+  .ganho .ic { width: 50px; height: 50px; border-radius: 14px; background: var(--realce-claro); color: var(--realce); display: grid; place-items: center; }
+  .ganho .ic svg { width: 26px; height: 26px; }
+  .ganho h3 { font-size: 20px; margin-top: 14px; }
+  .ganho p { color: var(--suave); font-size: 15px; margin-top: 6px; }
+  .antes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .antes li { list-style: none; display: flex; gap: 10px; padding: 7px 0; font-size: 15px; color: var(--suave); border-top: 1px solid var(--linha); }
+  .antes li:first-child { border-top: 0; }
+  .antes li::before { content: "✕"; color: #b91c1c; font-weight: 700; }
+  .antes .depois li::before { content: "✓"; color: var(--ok); }
+  .antes .depois { border-color: var(--realce); box-shadow: 0 0 0 4px var(--realce-claro); }
+  .antes h3 { margin-bottom: 8px; }
+  .citacao { margin: 46px auto 0; max-width: 820px; text-align: center; }
+  .citacao p { font-family: "Playfair Display", serif; font-style: italic; font-size: clamp(22px, 3vw, 30px); line-height: 1.35; }
+  .citacao span { display: block; margin-top: 10px; color: var(--fraca); font-size: 14px; }
+  .cta { margin: 48px 0 10px; background: radial-gradient(800px 400px at 90% 0%, #9c4d43 0%, transparent 60%), linear-gradient(140deg, var(--realce) 0%, var(--realce-escuro) 100%); color: #fff; border-radius: 28px; padding: 48px 32px; text-align: center; overflow: hidden; }
+  .cta h2 { font-size: clamp(28px, 4vw, 42px); }
+  .cta p { margin: 14px auto 0; max-width: 680px; opacity: .92; font-size: 17.5px; }
+  .cta .capinhas { display: flex; justify-content: center; gap: 10px; margin-top: 28px; }
+  .cta .capinhas img { width: 64px; border-radius: 3px; box-shadow: 0 10px 22px rgba(0,0,0,.35); }
+  footer { padding: 28px 0 44px; text-align: center; font-size: 13px; color: var(--fraca); }
+  footer a { color: var(--realce); font-weight: 600; text-decoration: none; }
+  footer .marcas { font-size: 11.5px; margin-top: 6px; }
+
+  @media (max-width: 1080px) {
+    .livros { grid-template-columns: repeat(3, 1fr); }
+    .canais { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding-top: 36px; }
+    .estante .flutua { width: 112px; height: 44px; }
+    .estante { height: 380px; max-width: 520px; width: 100%; margin: 0 auto; }
+    .estante img.capa { width: 150px; }
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .duas, .ganhos, .antes { grid-template-columns: 1fr; }
+    .faixa .wrap { justify-content: center; }
+    .faixa p { width: 100%; text-align: center; }
+  }
+  @media (max-width: 640px) {
+    header.app .sync .txt { display: none; }
+    .hero p.lead { font-size: 17px; }
+    .estante { height: 300px; }
+    .estante img.capa { width: 112px; }
+    .estante .flutua { width: 100px; height: 40px; padding: 6px 10px; }
+    .faixa .logo { width: 96px; height: 34px; }
+    .canais { grid-template-columns: 1fr 1fr; }
+    .livros { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .livro { padding: 10px; }
+    .livro h3 { font-size: 15px; }
+    .novo { grid-template-columns: 1fr; padding: 20px; }
+    .capa-nova { max-width: 170px; }
+    .campos { grid-template-columns: 1fr 1fr; }
+    .passo { grid-template-columns: 100px 1fr; }
+    .passo .logo { width: 100px; }
+    .passo .res { grid-column: 1 / -1; text-align: left; margin-top: -6px; }
+    .pedido { grid-template-columns: 40px 1fr auto; }
+    .pedido .logo { grid-column: 1 / -1; }
+    .barras .linha { grid-template-columns: 84px 1fr 60px; }
+    .barras .logo { width: 84px; }
+    .cta { padding: 36px 20px; }
+    .cta .capinhas img { width: 46px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="demo"><b>Demonstração</b> preparada pela Mesquita SaaS para Rogério Cunha · pedidos e números são exemplos ilustrativos</div>
+
+<header class="app">
+  <div class="wrap">
+    <div class="autor">
+      <img src="img/RogerioCunha.png" alt="Rogério Cunha">
+      <div><b>Rogério Cunha</b><span>Central de Publicação</span></div>
+    </div>
+    <span class="sync"><i class="dot"></i><span class="txt">5 lojas sincronizadas</span></span>
+  </div>
+</header>
+
+<main>
+  <section class="wrap hero">
+    <div>
+      <span class="selo">✦ Seus livros, nas maiores livrarias on-line do país</span>
+      <h1>Escreva o livro. <em>Nós colocamos ele à venda em todo o Brasil.</em></h1>
+      <p class="lead">Com um único cadastro, cada título seu passa a ser vendido ao mesmo tempo na <strong>Amazon, Mercado Livre, Shopee, Americanas e Magalu</strong> — com estoque, preços e pedidos organizados num só painel.</p>
+      <div class="acoes">
+        <a href="#publicar-novo" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+          Ver a publicação acontecer
+        </a>
+        <a href="#livros" class="btn btn-claro">Ver meus livros nas lojas</a>
+      </div>
+    </div>
+    <div class="estante" id="estante" aria-label="Capas dos livros de Rogério Cunha"></div>
+  </section>
+
+  <div class="faixa">
+    <div class="wrap" id="faixa"><p>À venda em</p></div>
+  </div>
+
+  <section class="wrap bloco">
+    <div class="kpis">
+      <div class="kpi"><small>Livros publicados</small><b>5</b><span>todo o seu catálogo</span></div>
+      <div class="kpi"><small>Anúncios no ar</small><b>25</b><span>5 livros × 5 lojas</span></div>
+      <div class="kpi"><small>Pedidos no mês</small><b>38</b><span>exemplo ilustrativo</span></div>
+      <div class="kpi"><small>Para lançar um livro novo</small><b>~2 min</b><span>antes: horas em cada loja</span></div>
+    </div>
+  </section>
+
+  <section class="wrap bloco">
+    <div class="titulo"><small>Lojas conectadas</small><h2>Cinco vitrines. Um só painel.</h2><p>As contas de vendedor nas cinco lojas ficam ligadas à sua Central. Tudo o que muda aqui é atualizado lá automaticamente.</p></div>
+    <div class="canais" id="canais"></div>
+  </section>
+
+  <section class="wrap bloco" id="livros">
+    <div class="titulo"><small>Seu catálogo</small><h2>Cada livro seu, em todas as estantes</h2><p>Capa, sinopse e preço cadastrados uma única vez — e o mesmo livro aparece para leitores de norte a sul.</p></div>
+    <div class="livros" id="lista-livros"></div>
+  </section>
+
+  <section class="wrap bloco" id="publicar-novo">
+    <div class="titulo"><small>Lançamento</small><h2>Um clique. Cinco lojas.</h2><p>Veja como será lançar o seu próximo livro: aperte o botão e acompanhe.</p></div>
+    <div class="novo">
+      <div class="capa-nova"><span>Rogério Cunha</span><b>Seu próximo livro</b><span>Lançamento</span></div>
+      <div>
+        <h3 style="font-size:23px">Cadastro único</h3>
+        <p style="color:var(--suave);margin-top:4px">Título, sinopse, capa, preço e estoque — preenchidos uma vez só. A Central adapta o anúncio às regras de cada loja: categoria, fotos, ficha técnica e frete.</p>
+        <div class="campos">
+          <div class="campo"><label>Preço base</label><div>R$ 47,50</div></div>
+          <div class="campo"><label>Estoque</label><div>100 exemplares</div></div>
+          <div class="campo"><label>Formato</label><div>148 × 210 mm</div></div>
+        </div>
+        <button class="btn btn-primary" id="publicar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4z"/></svg>
+          <span>Publicar em todas as lojas</span>
+        </button>
+        <div class="passos" id="passos"></div>
+        <div class="final" id="final">✓ Publicado nas 5 lojas em poucos segundos. Fazendo à mão, loja por loja, isso levaria uma tarde inteira.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap bloco duas">
+    <div class="card">
+      <h3>Pedidos de todas as lojas, num lugar só</h3>
+      <p class="nota">Exemplos ilustrativos</p>
+      <div id="pedidos" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <h3>Onde estão os seus leitores</h3>
+      <p class="nota">Vendas por loja · exemplo do mês</p>
+      <div class="barras" id="barras"></div>
+      <p style="font-size:13.5px;color:var(--suave);margin-top:18px">Você descobre onde cada livro vende mais — e decide com dados onde investir no próximo lançamento.</p>
+    </div>
+  </section>
+
+  <section class="wrap bloco">
+    <div class="titulo"><small>O que muda para você</small><h2>Mais leitores, menos trabalho</h2></div>
+    <div class="ganhos">
+      <div class="ganho"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><h3>Leitores do Brasil inteiro</h3><p>Seus livros aparecem onde milhões de pessoas já compram todos os dias. Quem nunca ouviu falar de você passa a encontrar sua obra numa busca.</p></div>
+      <div class="ganho"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3>Seu tempo de volta</h3><p>Nada de cadastrar o mesmo livro cinco vezes, nem de conferir estoque loja por loja. Você escreve e pesquisa; a Central cuida da vitrine.</p></div>
+      <div class="ganho"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>Reputação protegida</h3><p>Estoque único e sincronizado: quando um exemplar sai em uma loja, as outras já sabem. Sem vender o que acabou, sem cancelamentos.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap bloco antes">
+    <div class="card">
+      <h3>Hoje</h3>
+      <ul>
+        <li>As vendas dependem de quem já conhece você</li>
+        <li>Cada pedido chega por mensagem, um a um</li>
+        <li>Entrar numa loja exige cadastro, fotos e regras próprias</li>
+        <li>Não há como saber quanto cada livro vende</li>
+      </ul>
+    </div>
+    <div class="card depois">
+      <h3>Com a Central de Publicação</h3>
+      <ul>
+        <li>Cinco vitrines nacionais abertas 24 horas por dia</li>
+        <li>Todos os pedidos reunidos num único painel</li>
+        <li>Um cadastro, publicado em todas as lojas de uma vez</li>
+        <li>Relatório de vendas por livro e por loja</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="wrap citacao">
+    <p>Um livro só cumpre o seu destino quando chega às mãos do leitor.</p>
+    <span>Por isso, a sua obra precisa estar onde o leitor está.</span>
+  </div>
+
+  <section class="wrap">
+    <div class="cta">
+      <h2>Sua obra merece estar em todas as estantes.</h2>
+      <p>Esta página mostra como os seus livros ficariam organizados e à venda nas maiores lojas on-line do país. A implantação completa — abertura das contas, criação dos anúncios e integração — está detalhada na proposta que acompanha esta demonstração.</p>
+      <div class="capinhas" id="capinhas"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Desenvolvido por <a href="https://mesquitasaas.online/" target="_blank" rel="noopener">Mesquita SaaS</a>
+  <p class="marcas">Amazon, Mercado Livre, Shopee, Americanas e Magalu são marcas de seus respectivos donos, usadas aqui apenas para indicar os canais de venda.</p>
+</footer>
+
+<script>
+  const CANAIS = [
+    { id: "amazon", nome: "Amazon", vendas: 14 },
+    { id: "mercadolivre", nome: "Mercado Livre", vendas: 11 },
+    { id: "shopee", nome: "Shopee", vendas: 6 },
+    { id: "americanas", nome: "Americanas", vendas: 4 },
+    { id: "magalu", nome: "Magalu", vendas: 3 },
+  ];
+  const LIVROS = [
+    { capa: "capa-exilados-do-templo.jpg", titulo: "Os Exilados do Templo", sub: "A Fuga Secreta que Moldou Portugal", preco: "R$ 47,50" },
+    { capa: "capa-fernando-pessoa.jpg", titulo: "Fernando Pessoa: O Gênio de Mil Faces", sub: "A arquitetura da alma que deu voz a um universo de “eus”", preco: "R$ 37,87" },
+    { capa: "capa-sombra-da-guerra.jpg", titulo: "A Sombra da Guerra", sub: "Campos de Concentração no Brasil", preco: "R$ 37,87" },
+    { capa: "capa-lenda-de-arthur.jpg", titulo: "A Lenda de Arthur", sub: "Entre a Tradição Medieval e o Renascimento", preco: "R$ 37,87" },
+    { capa: "capa-contos-aleatorios.jpg", titulo: "Contos Aleatórios", sub: "Treze contos que atravessam épocas, guerras e memórias", preco: "R$ 37,87" },
+  ];
+  const PEDIDOS = [
+    ["amazon", 0, "Belo Horizonte, MG", "há 12 min"],
+    ["mercadolivre", 1, "São Paulo, SP", "há 40 min"],
+    ["shopee", 3, "Curitiba, PR", "há 1 h"],
+    ["amazon", 2, "Recife, PE", "há 2 h"],
+    ["magalu", 4, "Porto Alegre, RS", "há 3 h"],
+    ["americanas", 0, "Salvador, BA", "ontem"],
+  ];
+  const check = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  const logo = (id, extra = "") => {
+    const c = CANAIS.find((x) => x.id === id);
+    return `<span class="logo ${id} ${extra}"><img src="img/logo-${id}.svg" alt="${c.nome}"></span>`;
+  };
+  const $ = (id) => document.getElementById(id);
+
+  // Estante do topo: capas em leque + logotipos flutuando
+  const POS = [
+    { l: "2%", t: "16%", r: -10 }, { l: "20%", t: "4%", r: -4 }, { l: "38%", t: "0%", r: 2 }, { l: "56%", t: "6%", r: 7 }, { l: "70%", t: "18%", r: 12 },
+  ];
+  $("estante").innerHTML =
+    LIVROS.map((l, i) => `<img class="capa" src="img/${l.capa}" alt="${l.titulo}" style="left:${POS[i].l};top:${POS[i].t};transform:rotate(${POS[i].r}deg);z-index:${i === 2 ? 5 : 5 - Math.abs(2 - i)}">`).join("") +
+    [["amazon", "0%", "74%", 0], ["mercadolivre", "26%", "86%", .8], ["shopee", "52%", "80%", 1.6], ["americanas", "72%", "68%", 2.4], ["magalu", "66%", "-2%", 3.2]]
+      .map(([id, l, t, d]) => logo(id, "flutua").replace('class="logo', `style="left:${l};top:${t};animation-delay:${d}s" class="logo`)).join("");
+
+  $("faixa").insertAdjacentHTML("beforeend", CANAIS.map((c) => logo(c.id)).join(""));
+  $("capinhas").innerHTML = LIVROS.map((l) => `<img src="img/${l.capa}" alt="">`).join("");
+
+  $("canais").innerHTML = CANAIS.map((c) => `
+    <div class="canal">
+      ${logo(c.id)}
+      <span class="st">${check} Conta conectada</span>
+      <p class="det"><b>5 de 5</b> livros no ar · estoque <b>sincronizado</b></p>
+    </div>`).join("");
+
+  $("lista-livros").innerHTML = LIVROS.map((l) => `
+    <article class="livro">
+      <div class="capa"><img src="img/${l.capa}" alt="Capa de ${l.titulo}"></div>
+      <h3>${l.titulo}</h3>
+      <p class="sub">${l.sub}</p>
+      <div class="preco"><b>${l.preco}</b><span>exemplar físico</span></div>
+      <div class="onde"><small>✓ No ar em 5 lojas</small><div class="minis">${CANAIS.map((c) => logo(c.id)).join("")}</div></div>
+    </article>`).join("");
+
+  $("pedidos").innerHTML = PEDIDOS.map(([c, li, cidade, quando]) => `
+    <div class="pedido">
+      ${logo(c)}
+      <img class="mini" src="img/${LIVROS[li].capa}" alt="">
+      <div>${LIVROS[li].titulo}<small>${cidade} · ${quando}</small></div>
+      <div class="v">${LIVROS[li].preco}<small>pago</small></div>
+    </div>`).join("");
+
+  const max = Math.max(...CANAIS.map((c) => c.vendas));
+  $("barras").innerHTML = CANAIS.map((c) => `
+    <div class="linha">${logo(c.id)}<div class="barra"><i data-w="${(c.vendas / max) * 100}"></i></div><em>${c.vendas} pedidos</em></div>`).join("");
+  // As barras crescem quando aparecem na tela
+  new IntersectionObserver((ents, obs) => {
+    if (ents.some((e) => e.isIntersecting)) {
+      document.querySelectorAll("#barras .barra i").forEach((i) => (i.style.width = i.dataset.w + "%"));
+      obs.disconnect();
+    }
+  }).observe($("barras"));
+
+  // Simulação: publica o livro novo nas 5 lojas
+  const passos = $("passos");
+  const botao = $("publicar");
+  const ETAPAS = ["Gerando anúncio…", "Enviando capa…", "Ajustando categoria…", "✓ Publicado"];
+  botao.addEventListener("click", () => {
+    botao.disabled = true;
+    botao.style.opacity = ".6";
+    $("final").style.display = "none";
+    passos.innerHTML = CANAIS.map((c) => `<div class="passo">${logo(c.id)}<div class="barra"><i></i></div><span class="res">Na fila</span></div>`).join("");
+    let prontos = 0;
+    [...passos.children].forEach((linha, i) => {
+      const barra = linha.querySelector(".barra i");
+      const res = linha.querySelector(".res");
+      ETAPAS.forEach((etapa, k) => {
+        setTimeout(() => {
+          barra.style.width = `${((k + 1) / ETAPAS.length) * 100}%`;
+          res.textContent = etapa;
+          if (k === ETAPAS.length - 1) {
+            res.classList.add("ok");
+            if (++prontos === CANAIS.length) {
+              $("final").style.display = "block";
+              botao.disabled = false;
+              botao.style.opacity = "1";
+              botao.querySelector("span").textContent = "Publicar de novo";
+            }
+          }
+        }, 300 + i * 260 + k * 650);
+      });
+    });
+  });
+</script>
+</body>
+</html>
