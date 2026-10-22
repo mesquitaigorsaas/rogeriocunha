@@ -134,6 +134,10 @@
   .pedido small { display: block; color: var(--fraca); font-size: 12px; }
   .pedido .v { font-weight: 700; text-align: right; }
   .pedido .v small { color: var(--ok); font-weight: 600; }
+  .vazio { text-align: center; padding: 34px 16px 20px; color: var(--suave); }
+  .vazio svg { width: 44px; height: 44px; color: var(--realce); margin: 0 auto 10px; display: block; }
+  .vazio b { display: block; font-size: 16px; color: var(--tinta); }
+  .vazio p { font-size: 14px; margin: 4px auto 0; max-width: 380px; }
   .barras { display: grid; gap: 14px; margin-top: 14px; }
   .barras .linha { display: grid; grid-template-columns: 96px 1fr 70px; gap: 12px; align-items: center; font-size: 13px; }
   .barras .logo { width: 96px; height: 30px; border: 1px solid var(--linha); padding: 3px 8px; }
@@ -245,7 +249,7 @@
     <div class="kpis">
       <div class="kpi"><small>Livros publicados</small><b>5</b><span>todo o seu catálogo</span></div>
       <div class="kpi"><small>Anúncios no ar</small><b>25</b><span>5 livros × 5 lojas</span></div>
-      <div class="kpi"><small>Pedidos no mês</small><b>38</b><span>exemplo ilustrativo</span></div>
+      <div class="kpi"><small>Pedidos no mês</small><b>0</b><span>aguardando a primeira venda</span></div>
       <div class="kpi"><small>Para lançar um livro novo</small><b>~2 min</b><span>antes: horas em cada loja</span></div>
     </div>
   </section>
@@ -285,12 +289,12 @@
   <section class="wrap bloco duas">
     <div class="card">
       <h3>Pedidos de todas as lojas, num lugar só</h3>
-      <p class="nota">Exemplos ilustrativos</p>
+      <p class="nota">Amazon, Mercado Livre, Shopee, Americanas e Magalu</p>
       <div id="pedidos" style="margin-top:8px"></div>
     </div>
     <div class="card">
       <h3>Onde estão os seus leitores</h3>
-      <p class="nota">Vendas por loja · exemplo do mês</p>
+      <p class="nota">Vendas por loja · este mês</p>
       <div class="barras" id="barras"></div>
       <p style="font-size:13.5px;color:var(--suave);margin-top:18px">Você descobre onde cada livro vende mais — e decide com dados onde investir no próximo lançamento.</p>
     </div>
@@ -334,7 +338,7 @@
   <section class="wrap">
     <div class="cta">
       <h2>Sua obra merece estar em todas as estantes.</h2>
-      <p>Esta página mostra como os seus livros ficariam organizados e à venda nas maiores lojas on-line do país. A implantação completa — abertura das contas, criação dos anúncios e integração — está detalhada na proposta que acompanha esta demonstração.</p>
+      <p>Esta é a Central de Publicação pensada para a sua obra: seus livros organizados e à venda nas maiores lojas on-line do país. A implantação completa — abertura das contas, criação dos anúncios e integração — está detalhada na proposta.</p>
       <div class="capinhas" id="capinhas"></div>
     </div>
   </section>
@@ -347,11 +351,11 @@
 
 <script>
   const CANAIS = [
-    { id: "amazon", nome: "Amazon", vendas: 14 },
-    { id: "mercadolivre", nome: "Mercado Livre", vendas: 11 },
-    { id: "shopee", nome: "Shopee", vendas: 6 },
-    { id: "americanas", nome: "Americanas", vendas: 4 },
-    { id: "magalu", nome: "Magalu", vendas: 3 },
+    { id: "amazon", nome: "Amazon", vendas: 0 },
+    { id: "mercadolivre", nome: "Mercado Livre", vendas: 0 },
+    { id: "shopee", nome: "Shopee", vendas: 0 },
+    { id: "americanas", nome: "Americanas", vendas: 0 },
+    { id: "magalu", nome: "Magalu", vendas: 0 },
   ];
   const LIVROS = [
     { capa: "capa-exilados-do-templo.jpg", titulo: "Os Exilados do Templo", sub: "A Fuga Secreta que Moldou Portugal", preco: "R$ 47,50" },
@@ -361,12 +365,6 @@
     { capa: "capa-contos-aleatorios.jpg", titulo: "Contos Aleatórios", sub: "Treze contos que atravessam épocas, guerras e memórias", preco: "R$ 37,87" },
   ];
   const PEDIDOS = [
-    ["amazon", 0, "Belo Horizonte, MG", "há 12 min"],
-    ["mercadolivre", 1, "São Paulo, SP", "há 40 min"],
-    ["shopee", 3, "Curitiba, PR", "há 1 h"],
-    ["amazon", 2, "Recife, PE", "há 2 h"],
-    ["magalu", 4, "Porto Alegre, RS", "há 3 h"],
-    ["americanas", 0, "Salvador, BA", "ontem"],
   ];
   const check = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
   const logo = (id, extra = "") => {
@@ -403,17 +401,22 @@
       <div class="onde"><small>✓ No ar em 5 lojas</small><div class="minis">${CANAIS.map((c) => logo(c.id)).join("")}</div></div>
     </article>`).join("");
 
-  $("pedidos").innerHTML = PEDIDOS.map(([c, li, cidade, quando]) => `
+  $("pedidos").innerHTML = PEDIDOS.length ? PEDIDOS.map(([c, li, cidade, quando]) => `
     <div class="pedido">
       ${logo(c)}
       <img class="mini" src="img/${LIVROS[li].capa}" alt="">
       <div>${LIVROS[li].titulo}<small>${cidade} · ${quando}</small></div>
       <div class="v">${LIVROS[li].preco}<small>pago</small></div>
-    </div>`).join("");
+    </div>`).join("") : `
+    <div class="vazio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <b>Nenhum pedido ainda</b>
+      <p>Assim que um leitor comprar em qualquer uma das cinco lojas, o pedido aparece aqui na hora.</p>
+    </div>`;
 
-  const max = Math.max(...CANAIS.map((c) => c.vendas));
+  const max = Math.max(1, ...CANAIS.map((c) => c.vendas));
   $("barras").innerHTML = CANAIS.map((c) => `
-    <div class="linha">${logo(c.id)}<div class="barra"><i data-w="${(c.vendas / max) * 100}"></i></div><em>${c.vendas} pedidos</em></div>`).join("");
+    <div class="linha">${logo(c.id)}<div class="barra"><i data-w="${(c.vendas / max) * 100}"></i></div><em>${c.vendas} ${c.vendas === 1 ? "pedido" : "pedidos"}</em></div>`).join("");
   // As barras crescem quando aparecem na tela
   new IntersectionObserver((ents, obs) => {
     if (ents.some((e) => e.isIntersecting)) {
